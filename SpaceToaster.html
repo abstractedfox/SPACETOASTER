@@ -2,8 +2,12 @@
 <html>
     <head>
         <style>
+            :root{
+                --viewport-width: 1px;
+            }
             #boundingBox{
                 height: 900px;
+                width: var(--viewport-width);
                 border-width: 10px;
                 border-color: #000000;
                 border: solid;
@@ -13,6 +17,15 @@
 
             #toasterBounds{
                 position: absolute;
+                bottom: 17%;
+                height: 10px;
+                width: var(--viewport-width);
+            }
+
+            #bulletBounds{
+                position: absolute;
+                width: var(--viewport-width);
+                height: 5px;
                 bottom: 17%;
             }
 
@@ -28,6 +41,10 @@
                 height: 8px;
                 background-color: #ff1144;
             }
+
+            .toast{
+                position: absolute;
+            }
         </style>
         <script src="logic.js"></script>
     </head>
@@ -36,6 +53,7 @@
             <div id="toasterBounds">
                 <div id="toaster"></div>
             </div>
+            <div id="bulletBounds"></div>
         </div>  
         <script>gameloop();</script>
     </body>

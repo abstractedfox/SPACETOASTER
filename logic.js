@@ -7,14 +7,21 @@ class Bullet{
         this.speed = speed;
         
         this.lastPos = this.xPos;
+        this.elementReference;
+        this.ID = Math.random().toString();
+        this.htmlContents = `<div class="toast" id="` + this.ID + `">>:3</div>`;
+
+        document.getElementById("bulletBounds").innerHTML += this.htmlContents;
+
+        document.getElementById(this.ID).style.left = this.xPos + "px";
     }
 
     update(){
-        this.lastPos = this.xPos;
-        this.xPos += this.speed;        
+        this.lastPos = this.yPos;
+        this.yPos -= this.speed;
+        
+        document.getElementById(this.ID).style.top = this.yPos + "px";
     }
-
-
 }
 
 function gameloop(){
@@ -31,6 +38,8 @@ function gameloop(){
     var toasterLeftPosition = 0;
 
     var viewportWidth = 1100;
+
+    var bullets = [];
 
     //Set up keyboard events
     var keyLeft = false;
@@ -76,16 +85,18 @@ function gameloop(){
     //Initialize sizes and positions
     toaster.style.width = toasterX + "px";
     toaster.style.height = toasterY + "px";
-    boundingBox.style.width = viewportWidth + "px";
+    document.documentElement.style.setProperty("--viewport-width", (viewportWidth + "px"));
     
     toasterLeftPosition = ((viewportWidth / 2) - (toasterX / 2));
 
     function spacebarPress(){
         console.log("bang!!!");
+        fire();
     }
     
     function fire(){
-        
+        let toasty = new Bullet(toasterLeftPosition + (toasterX / 2), 10, 8);
+        bullets.push(toasty);
     }
 
     function step(){
@@ -96,6 +107,10 @@ function gameloop(){
             toasterLeftPosition += toasterSpeed;
         }
         toaster.style.left = toasterLeftPosition + "px";
+        
+        bullets.forEach(item => {
+            item.update();
+        });
     }
 
 }
