@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #boundingBox{
+                height: 900px;
+                border-width: 10px;
+                border-color: #000000;
+                border: solid;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #toasterBounds{
+                position: absolute;
+                bottom: 17%;
+            }
+
+            #toaster{
+                background-color: #121234;
+                width: 120px;
+                height: 120px;
+                position: absolute;
+            }
+
+            #bullet{
+                width: 8px;
+                height: 8px;
+                background-color: #ff1144;
+            }
+        </style>
+        <script src="logic.js"></script>
+    </head>
+    <body>
+        <div id="boundingBox">
+            <div id="toasterBounds">
+                <div id="toaster"></div>
+            </div>
+        </div>  
+        <script>gameloop();</script>
+    </body>
+</html>
+
