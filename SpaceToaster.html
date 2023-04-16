@@ -1,12 +1,32 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!--
+        z-index rules!!
+        
+        -10 to -1: background
+        10 to 40: toast & toaster; toast starts at 20
+        -->
+        <link rel="stylesheet" href="assets.css">
         <style>
             :root{
                 --viewport-width: 1px;
                 --viewport-height: 900px;
                 --toaster-position: 0px;
             }
+            
+            @keyframes floatingInSpace{
+                0%{
+                    margin-top: 0px;
+                }
+                50%{
+                    margin-top: -16px;
+                }
+                100%{
+                    margin-top: 0px;
+                }
+            }
+            
             #boundingBox{
                 height: var(--viewport-height);
                 width: var(--viewport-width);
@@ -15,6 +35,19 @@
                 border: solid;
                 margin-left: auto;
                 margin-right: auto;
+            }
+            
+            #effectBounds{
+                background-color: #000000;
+                position: absolute;
+                z-index: -10;
+                
+                height: var(--viewport-height);
+                width: var(--viewport-width);
+                
+                margin-left: auto;
+                margin-right: auto;
+                margin: 0px;
             }
 
             #toasterBounds{
@@ -37,10 +70,28 @@
             }
 
             #toaster{
-                background-color: #121234;
+                /*background-color: #cccccc;*/
+                position: absolute;
                 width: 120px;
                 height: 120px;
+                
+                animation-name: floatingInSpace;
+                animation-duration: 6s;
+                animation-iteration-count: infinite;
+            }
+            
+            #toasterback{
                 position: absolute;
+                width: 100%;
+                height: auto;
+                z-index: 10;
+            }
+            
+            #toasterfront{
+                position: absolute;
+                width: 100%;
+                height: auto;
+                z-index: 30;
             }
             
             #toasterCollision{
@@ -52,7 +103,6 @@
 
             .toast{
                 position: absolute;
-                background-color: blue;
             }
             
             .enemy{
@@ -61,17 +111,32 @@
                 width: 20px;
                 background-color: red;
             }
+            
+            .star{
+                font-family: monospace;
+                position: absolute;
+                color: white;
+                margin-top: -8px;
+                z-index: -9;
+            }
         </style>
         <script src="logic.js"></script>
     </head>
     <body>
-        <div id="boundingBox">
-            <div id="toasterBounds">
-                <div id="toaster"></div>
+        
+        <div id="mask">
+            <div id="boundingBox">
+                <div id="toasterBounds">
+                    <div id="toaster">
+                        <img src="assets/toastersmall.png" id="toasterback">
+                        <img src="assets/toastersmall-front.png" id="toasterfront">
+                    </div>
+                </div>
+                <div id="bulletBounds"></div>
+                <div id="enemyBounds"></div>
+                <div id="effectBounds"></div>
             </div>
-            <div id="bulletBounds"></div>
-            <div id="enemyBounds"></div>
-        </div>  
+        </div>
         <script>gameloop();</script>
     </body>
 </html>

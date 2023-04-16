@@ -9,12 +9,56 @@ const gameplayObjects = {
     destroy: "destroy"
 }
 
+const toastGraphic = `<div id="toastInnerContainer">
+<div id="toastBody"></div>
+<div id="toastTop"></div>
+<div id="toastToastiness"></div>
+</div>
+<div id="toastBorderContainer">
+<div id="toastBody"></div>
+<div id="toastTop"></div>
+</div>`;
+
 const frameDistance = 16;
 const viewportWidth = 1100;
 const viewportHeight = 900;
 const bulletTopBound = -5;
 const enemyBottomBound = viewportHeight + 5;
 
+const normalEnemyPointValue = 50;
+const toasterDestructionPointDeduction = -200;
+
+const viewportFifths = {
+    "1": (viewportWidth / 5),
+    "2": (viewportWidth / 5) * 2,
+    "3": (viewportWidth / 5) * 3,
+    "4": (viewportWidth / 5) * 4,
+    "5": viewportWidth
+}
+
+const viewportSevenths = {
+    "1": (viewportWidth / 7),
+    "2": (viewportWidth / 7) * 2,
+    "3": (viewportWidth / 7) * 3,
+    "4": (viewportWidth / 7) * 4,
+    "5": (viewportWidth / 7) * 5,
+    "6": (viewportWidth / 7) * 6,
+    "7": viewportWidth
+}
+
+const viewportNinths = {
+    "1": (viewportWidth / 9),
+    "2": (viewportWidth / 9) * 2,
+    "3": (viewportWidth / 9) * 3,
+    "4": (viewportWidth / 9) * 4,
+    "5": (viewportWidth / 9) * 5,
+    "6": (viewportWidth / 9) * 6,
+    "7": (viewportWidth / 9) * 7,
+    "8": (viewportWidth / 9) * 8,
+    "9": viewportWidth
+}
+
+///////////////////Gameplay objects
 class ToasterCollision{
     constructor(xPos, yPos, width, height, containerArray){
         this.alive = true;
@@ -24,6 +68,7 @@ class ToasterCollision{
         this.height = height;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.toaster;
+        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         
         this.containerArray = containerArray;
         this.ID = "toasterCollision";
@@ -45,6 +90,7 @@ class ToasterCollision{
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 console.log("Toaster hit!");
+                this.pointChange += toasterDestructionPointDeduction;
             
         }
     }
@@ -64,6 +110,7 @@ class Enemy{
         this.speed = speed;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.enemy;
+        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
@@ -89,6 +136,7 @@ class Enemy{
     collide(gameplayObject){
         switch(gameplayObject){
             case gameplayObjects.toast:
+                this.pointChange += normalEnemyPointValue;
                 this.destroy();
             
             case gameplayObjects.toaster:
@@ -117,7 +165,8 @@ class Bullet{
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
-        this.htmlContents = `<div class="toast" id="` + this.ID + `">>:3</div>`;
+        //this.htmlContents = `<div class="toast" id="` + this.ID + `">>:3</div>`;
+        this.htmlContents = `<div class="toast" id="` + this.ID + `">` + toastGraphic + `</div>`;
 
         document.getElementById("bulletBounds").innerHTML += this.htmlContents;
         
@@ -158,6 +207,12 @@ class Bullet{
     }
 }
 
+
+
+
+
+///////////////////Logic
+
 //One dimensional collission detection, returns true if the values overlap
 function collides(object1start, object1end, object2start, object2end){
     return (object1start >= object2start && object1start <= object2end)
@@ -167,6 +222,7 @@ function collides(object1start, object1end, object2start, object2end){
 //note: can probably optimize this better; also, it will technically register each collision twice, which is
 //fine for now, but will be a problem if we want collisions to do something other than destroy an object
 function collisionloop(objectCollection){
+    let scoreChange = 0;
     objectCollection.forEach(outerLoopObject => {
         objectCollection.forEach(innerLoopObject => {
             
@@ -176,10 +232,22 @@ function collisionloop(objectCollection){
                     
                     outerLoopObject.collide(innerLoopObject.objectType);
                     innerLoopObject.collide(outerLoopObject.objectType);
+                    
+                    if (outerLoopObject.hasOwnProperty("pointChange") && outerLoopObject.pointChange != 0){
+                        scoreChange += outerLoopObject.pointChange;
+                        outerLoopObject.pointChange = 0;
+                    }
+                    
+                    if (innerLoopObject.hasOwnProperty("pointChange") && innerLoopObject.pointChange != 0){
+                        scoreChange += innerLoopObject.pointChange;
+                        innerLoopObject.pointChange = 0;
+                    }
                 }
             }
         });
     });
+    
+    return scoreChange;
 }
 
 function gameloop(){
@@ -189,14 +257,15 @@ function gameloop(){
     console.log("Script active");
 
     var frameTimer = setInterval(step, frameDistance);
-    var toasterSpeed = 9;
+    var toasterSpeed = 10;
 
-    var toasterX = 70;
-    var toasterY = 70;
+    var toasterX = 150;
+    var toasterY = 150;
     var toasterLeftPosition = 0;
-    var toasterTopBoundPosition = ((viewportHeight / 5) * 4);
+    var toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
     var gameObjects = [];
+    var points = 0;
 
     //Set up keyboard events
     var keyLeft = false;
@@ -253,9 +322,12 @@ function gameloop(){
     }
     
     function fire(){
+        let toastSize = 60;
+        let toastSpeed = 12;
+        
         let bulletYPosition = window.getComputedStyle(toasterBounds).top;
         bulletYPosition = bulletYPosition.substring(0, bulletYPosition.length - 2); //remove 'px' from end
-        let toasty = new Bullet(toasterLeftPosition + (toasterX / 2), bulletYPosition, 16, 16, 12, gameObjects);
+        let toasty = new Bullet(toasterLeftPosition + (toasterX / 2) - (toastSize / 2), bulletYPosition, toastSize, toastSize, toastSpeed, gameObjects);
         gameObjects.push(toasty);
     }
     
@@ -263,6 +335,8 @@ function gameloop(){
     gameObjects.push(toasterCollisionObject);
     
     let level = new basicLevel(gameObjects, 1);
+    let bg = new starryBackground();
+    
     
     function step(){
         if (keyLeft == true){
@@ -277,36 +351,156 @@ function gameloop(){
         
         gameObjects.forEach(item => {
             item.update();
+            if (item.hasOwnProperty("pointChange") && item.pointChange != 0){
+                
+            }
         });
         
-        collisionloop(gameObjects);
+        let pointChange = collisionloop(gameObjects);
+        
+        points += pointChange;
+        console.log(points);
+        
+        bg.step();
     }
 
 }
 
+
+///////////////////Level scripts
 class basicLevel{
     constructor (gameObjectsCollection, intensity){
         this.gameObjects = gameObjectsCollection;
         this.intensity = intensity;
+        this.secondsToDifficultyIncrease = 4;
         
         this.frameCounter = 0; //Increment once per step
         this.lastKeyframe = 0; //The last 'frame' where this level did something
+        
+        this.enemyWidth = 40;
+        this.enemyHeight = 50;
     }
     
     step(){
         this.frameCounter++;
-        let difficultyScale = (60*(4 - (0.01 * this.intensity)));
+        let difficultyScale = (60*(2 - (0.02 * this.intensity)));
                                
         if (this.frameCounter - this.lastKeyframe > difficultyScale){
             this.lastKeyframe = this.frameCounter;
             
-            let enemy = new Enemy(Math.floor(Math.random() * viewportWidth), 0, 50, 40, 6, this.gameObjects);
+            let enemy = new Enemy(Math.floor(Math.random() * (viewportWidth - this.enemyWidth)), 0, this.enemyHeight, this.enemyWidth, 6, this.gameObjects);
             this.gameObjects.push(enemy);
         }
-                               
-        if (this.frameCounter % (60*15) == 0){
+        
+        if (this.frameCounter % (60*(this.secondsToDifficultyIncrease)) == 0){
             this.intensity++;
             console.log("level up!");
         }
+    }
+}
+
+
+
+
+///////////////////Graphics
+class starryBackground{
+    constructor(){
+        this.speedMultiplier = 1;
+        this.starArray = [];
+        this.vSlowStar = 1;
+        this.slowStar = 2;
+        this.fastStar = 5;
+        this.vFastStar = 9;
+        
+        //Fast stars
+        for (let i = 0; i < 20; i++){
+            let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.fastStar, this.starArray, this);
+            this.starArray.push(star);
+        }
+        
+        //Slow stars
+        for (let i = 0; i < 30; i++){
+            let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.slowStar, this.starArray, this);
+            this.starArray.push(star);
+        }
+        
+        //Very slow stars
+        for (let i = 0; i < 8; i++){
+            let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.vSlowStar, this.starArray, this);
+            this.starArray.push(star);
+        }
+    }
+    
+    step(){
+        this.starArray.forEach(star => {
+           star.update();
+        });
+        let randomVal = Math.random();
+        if (randomVal < 0.05){
+            //Very slow star
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vSlowStar, this.starArray, this);
+            this.starArray.push(star);
+            return;
+        }
+        if (randomVal < 0.15){
+            //Slow star
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.slowStar, this.starArray, this);
+            this.starArray.push(star);
+            return;
+        }
+        
+        if (randomVal < 0.5){
+            //Fast star
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.fastStar, this.starArray, this);
+            this.starArray.push(star);
+            return;
+        }
+        
+        if (randomVal > 0.88){
+            //Very fast star
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vFastStar, this.starArray, this);
+            this.starArray.push(star);
+            return;
+        }
+    }
+}
+
+class Star{
+    constructor(xPos, yPos, width, height, speed, containerArray, bgInstance){
+        this.alive = true;
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.width = width;
+        this.height = height;
+        this.speed = speed;
+        this.bgInstance = bgInstance;
+        
+        this.containerArray = containerArray;
+        this.ID = Math.random().toString();
+        this.htmlContents = `<div class="star" id="` + this.ID + `">.</div>`;
+        
+        document.getElementById("effectBounds").innerHTML += this.htmlContents;
+        
+        document.getElementById(this.ID).style.left = this.xPos + "px";
+        document.getElementById(this.ID).style.top = this.yPos + "px";
+    }
+    
+    update(){
+        this.yPos += (this.speed * this.bgInstance.speedMultiplier);
+        document.getElementById(this.ID).style.top = this.yPos + "px";
+        
+        if (this.yPos > enemyBottomBound){
+            this.destroy();
+        }
+    }
+    
+    collide(gameplayObject){
+    }
+    
+    destroy(){
+        if (!this.alive) return;
+        document.getElementById(this.ID).remove();
+        this.containerArray.splice(this.containerArray.indexOf(this), 1);
+        this.alive = false;
     }
 }
