@@ -25,6 +25,38 @@ const viewportHeight = 900;
 const bulletTopBound = -5;
 const enemyBottomBound = viewportHeight + 5;
 
+const normalEnemyPointValue = 50;
+const toasterDestructionPointDeduction = -200;
+
+const viewportFifths = {
+    "1": (viewportWidth / 5),
+    "2": (viewportWidth / 5) * 2,
+    "3": (viewportWidth / 5) * 3,
+    "4": (viewportWidth / 5) * 4,
+    "5": viewportWidth
+}
+
+const viewportSevenths = {
+    "1": (viewportWidth / 7),
+    "2": (viewportWidth / 7) * 2,
+    "3": (viewportWidth / 7) * 3,
+    "4": (viewportWidth / 7) * 4,
+    "5": (viewportWidth / 7) * 5,
+    "6": (viewportWidth / 7) * 6,
+    "7": viewportWidth
+}
+
+const viewportNinths = {
+    "1": (viewportWidth / 9),
+    "2": (viewportWidth / 9) * 2,
+    "3": (viewportWidth / 9) * 3,
+    "4": (viewportWidth / 9) * 4,
+    "5": (viewportWidth / 9) * 5,
+    "6": (viewportWidth / 9) * 6,
+    "7": (viewportWidth / 9) * 7,
+    "8": (viewportWidth / 9) * 8,
+    "9": viewportWidth
+}
 
 ///////////////////Gameplay objects
 class ToasterCollision{
@@ -36,6 +68,7 @@ class ToasterCollision{
         this.height = height;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.toaster;
+        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         
         this.containerArray = containerArray;
         this.ID = "toasterCollision";
@@ -57,6 +90,7 @@ class ToasterCollision{
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 console.log("Toaster hit!");
+                this.pointChange += toasterDestructionPointDeduction;
             
         }
     }
@@ -76,6 +110,7 @@ class Enemy{
         this.speed = speed;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.enemy;
+        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
@@ -101,6 +136,7 @@ class Enemy{
     collide(gameplayObject){
         switch(gameplayObject){
             case gameplayObjects.toast:
+                this.pointChange += normalEnemyPointValue;
                 this.destroy();
             
             case gameplayObjects.toaster:
@@ -186,6 +222,7 @@ function collides(object1start, object1end, object2start, object2end){
 //note: can probably optimize this better; also, it will technically register each collision twice, which is
 //fine for now, but will be a problem if we want collisions to do something other than destroy an object
 function collisionloop(objectCollection){
+    let scoreChange = 0;
     objectCollection.forEach(outerLoopObject => {
         objectCollection.forEach(innerLoopObject => {
             
@@ -195,10 +232,22 @@ function collisionloop(objectCollection){
                     
                     outerLoopObject.collide(innerLoopObject.objectType);
                     innerLoopObject.collide(outerLoopObject.objectType);
+                    
+                    if (outerLoopObject.hasOwnProperty("pointChange") && outerLoopObject.pointChange != 0){
+                        scoreChange += outerLoopObject.pointChange;
+                        outerLoopObject.pointChange = 0;
+                    }
+                    
+                    if (innerLoopObject.hasOwnProperty("pointChange") && innerLoopObject.pointChange != 0){
+                        scoreChange += innerLoopObject.pointChange;
+                        innerLoopObject.pointChange = 0;
+                    }
                 }
             }
         });
     });
+    
+    return scoreChange;
 }
 
 function gameloop(){
@@ -216,6 +265,7 @@ function gameloop(){
     var toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
     var gameObjects = [];
+    var points = 0;
 
     //Set up keyboard events
     var keyLeft = false;
@@ -284,8 +334,9 @@ function gameloop(){
     var toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
     gameObjects.push(toasterCollisionObject);
     
-    let level = new basicLevel(gameObjects, 4);
+    let level = new basicLevel(gameObjects, 1);
     let bg = new starryBackground();
+    
     
     function step(){
         if (keyLeft == true){
@@ -300,9 +351,15 @@ function gameloop(){
         
         gameObjects.forEach(item => {
             item.update();
+            if (item.hasOwnProperty("pointChange") && item.pointChange != 0){
+                
+            }
         });
         
-        collisionloop(gameObjects);
+        let pointChange = collisionloop(gameObjects);
+        
+        points += pointChange;
+        console.log(points);
         
         bg.step();
     }
@@ -326,7 +383,7 @@ class basicLevel{
     
     step(){
         this.frameCounter++;
-        let difficultyScale = (60*(2 - (0.03 * this.intensity)));
+        let difficultyScale = (60*(2 - (0.02 * this.intensity)));
                                
         if (this.frameCounter - this.lastKeyframe > difficultyScale){
             this.lastKeyframe = this.frameCounter;
