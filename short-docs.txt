@@ -1,0 +1,12 @@
+Quick notes about SpaceToaster so I don't forget how anything works later on
+
+gameloop() is called once on the page and starts the game. Numerous CSS attributes are initialized through javascript because it's nicer to set the values absolutely in code and convert them to CSS-friendly strings (with CSS units at the end).
+
+var frameTimer = setInterval(...) starts the actual game loop. 16ms is approx 60fps (slightly slower). We're not using any delta time calculations right now so timings are hardcoded; setting a higher or lower value will make the entire game change in speed.
+
+Most gameplay objects (bullets, enemies) follow a similar pattern in their design: constructor that accepts relevant parameters to that object, an update function, a collide function, and a destroy function. update() is called on every step and takes no arguments. collide() should accept a single argument matching a value in the 'gameplayObjects' constant, and a switch statement to handle relevant collisions.
+Gameplay objects' constructors also accept an array which tracks that object; this array will be referenced in that object's destroy() function. When destroy() is called, the object should remove itself from the page and from the referenced array.
+
+In the gameplay loop, the 'gameObjects' array is the array we use for this, and contains all of these objects. For this reason, when instantiating a new gameplay object, the object must be added to the array, and the array must be passed to the object.
+
+Toaster movement was hardcoded at the super early stages; it's represented on the screen by a CSS object that is updated in each call of the step() function, but its collision mesh is an instance of the ToasterCollision object which works like all the other game objects.

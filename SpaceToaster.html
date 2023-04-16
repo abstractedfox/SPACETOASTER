@@ -4,9 +4,11 @@
         <style>
             :root{
                 --viewport-width: 1px;
+                --viewport-height: 900px;
+                --toaster-position: 0px;
             }
             #boundingBox{
-                height: 900px;
+                height: var(--viewport-height);
                 width: var(--viewport-width);
                 border-width: 10px;
                 border-color: #000000;
@@ -17,7 +19,7 @@
 
             #toasterBounds{
                 position: absolute;
-                bottom: 17%;
+                top: var(--toaster-position);
                 height: 10px;
                 width: var(--viewport-width);
             }
@@ -26,7 +28,12 @@
                 position: absolute;
                 width: var(--viewport-width);
                 height: 5px;
-                bottom: 17%;
+            }
+            
+            #enemyBounds{
+                position: absolute;
+                width: var(--viewport-width);
+                height: var(--viewport-height);
             }
 
             #toaster{
@@ -35,15 +42,24 @@
                 height: 120px;
                 position: absolute;
             }
-
-            #bullet{
-                width: 8px;
-                height: 8px;
-                background-color: #ff1144;
+            
+            #toasterCollision{
+                width: 0px;
+                height: 0px;
+                position: absolute;
             }
+
 
             .toast{
                 position: absolute;
+                background-color: blue;
+            }
+            
+            .enemy{
+                position: absolute;
+                height: 20px;
+                width: 20px;
+                background-color: red;
             }
         </style>
         <script src="logic.js"></script>
@@ -54,6 +70,7 @@
                 <div id="toaster"></div>
             </div>
             <div id="bulletBounds"></div>
+            <div id="enemyBounds"></div>
         </div>  
         <script>gameloop();</script>
     </body>
