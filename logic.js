@@ -25,15 +25,14 @@ const viewportHeight = 900;
 const bulletTopBound = -5;
 const enemyBottomBound = viewportHeight + 5;
 
-const normalEnemyPointValue = 50;
-const toasterDestructionPointDeduction = -200;
 
 const viewportFifths = {
     "1": (viewportWidth / 5),
     "2": (viewportWidth / 5) * 2,
     "3": (viewportWidth / 5) * 3,
     "4": (viewportWidth / 5) * 4,
-    "5": viewportWidth
+    "5": viewportWidth,
+    "halfunit": ((viewportWidth / 5) / 2)
 }
 
 const viewportSevenths = {
@@ -43,7 +42,8 @@ const viewportSevenths = {
     "4": (viewportWidth / 7) * 4,
     "5": (viewportWidth / 7) * 5,
     "6": (viewportWidth / 7) * 6,
-    "7": viewportWidth
+    "7": viewportWidth,
+        "halfunit": ((viewportWidth / 7) / 2)
 }
 
 const viewportNinths = {
@@ -55,7 +55,8 @@ const viewportNinths = {
     "6": (viewportWidth / 9) * 6,
     "7": (viewportWidth / 9) * 7,
     "8": (viewportWidth / 9) * 8,
-    "9": viewportWidth
+    "9": viewportWidth,
+    "halfunit": ((viewportWidth / 9) / 2)
 }
 
 ///////////////////Gameplay objects
@@ -69,6 +70,7 @@ class ToasterCollision{
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.toaster;
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
+        this.pointValue = -200;
         
         this.containerArray = containerArray;
         this.ID = "toasterCollision";
@@ -90,7 +92,7 @@ class ToasterCollision{
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 console.log("Toaster hit!");
-                this.pointChange += toasterDestructionPointDeduction;
+                this.pointChange += this.pointValue;
             
         }
     }
@@ -103,7 +105,7 @@ class ToasterCollision{
 class Enemy{
     constructor(xPos, yPos, width, height, speed, containerArray){
         this.alive = true;
-        this.xPos = xPos;
+        this.xPos = xPos - (width / 2);
         this.yPos = yPos;
         this.width = width;
         this.height = height;
@@ -111,10 +113,11 @@ class Enemy{
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.enemy;
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
+        this.pointValue = 50;
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
-        this.htmlContents = `<div class="enemy" id="` + this.ID + `">>:O</div>`;
+        this.htmlContents = `<div class="enemy" id="` + this.ID + `"></div>`;
         
         document.getElementById("enemyBounds").innerHTML += this.htmlContents;
         
@@ -136,7 +139,7 @@ class Enemy{
     collide(gameplayObject){
         switch(gameplayObject){
             case gameplayObjects.toast:
-                this.pointChange += normalEnemyPointValue;
+                this.pointChange += this.pointValue;
                 this.destroy();
             
             case gameplayObjects.toaster:
@@ -150,6 +153,71 @@ class Enemy{
         this.containerArray.splice(this.containerArray.indexOf(this), 1);
         this.alive = false;
     }
+}
+
+//Starts at the vertical position passed in 'yPosStart', then every 'advanceInterval' steps, advances 'advanceAmount' in increments of 'speed'.
+class DynamicEnemy extends Enemy{
+    constructor(xPos, yPos, width, height, speed, containerArray, initialYPosStop, advanceAmount, advanceInterval, xPosTransformFunction, yPosTransformFunction){
+        super(xPos, yPos, width, height, speed, containerArray);
+        
+        this.advanceAmount = advanceAmount;
+        this.advanceInterval = advanceInterval;
+        this.initialYPosStop = initialYPosStop;
+        
+        this.frameCounter = 0; //Total frames
+        this.lastKeyframe = 0; //Frames since the last time we last initiated an action
+        
+        this.xPosTransformFunction = xPosTransformFunction; //Placeholder for now; could pass a lambda here to perform a transformation on the x axis with each step. Pass null for now
+        this.yPosTransformFunction = yPosTransformFunction;
+    }
+    
+    update(){
+        if (!this.alive) return;
+        this.frameCounter++;
+        if (this.yPos > enemyBottomBound){
+            this.destroy();
+            this.frameCounter++;
+            return;
+        }
+        
+        if (this.yPos < this.initialYPosStop){
+            this.yPos += this.speed;
+            document.getElementById(this.ID).style.top = this.yPos + "px";
+            this.frameCounter++;
+            return;
+        }
+        
+        
+        this.lastKeyframe++;
+        
+        //physics moment: we will advance by (advanceAmount) units within (advanceAmount / speed) frames
+        if (this.lastKeyframe > this.advanceInterval){ //we are in the window of possible animation
+            if ((this.lastKeyframe - this.advanceInterval) < (this.advanceAmount)) //the amount advanced is less than the total amount that should be advanced per animation interval
+                {
+                    this.yPos += this.speed;
+                    let amountAdvanced = (this.lastKeyframe - this.advanceInterval) * this.speed;
+                    if (amountAdvanced > this.advanceInterval){
+                        this.yPos -= (amountAdvanced - this.advanceInterval);
+                        this.lastKeyframe = 0;
+                    }
+                    document.getElementById(this.ID).style.top = this.yPos + "px";
+                    return;
+                }
+                else{
+                    this.lastKeyframe = 0;
+                }
+        }
+        
+    }
+    
+    collide(gameplayObject){
+        super.collide(gameplayObject);
+    }
+    
+    destroy(){
+        super.destroy();
+    }
+    
 }
 
 class Bullet{
@@ -184,7 +252,7 @@ class Bullet{
         if (this.yPos < bulletTopBound){
             this.destroy();
             return;
-        }
+        }   
          
         document.getElementById(this.ID).style.top = this.yPos + "px";
     }
@@ -212,6 +280,11 @@ class Bullet{
 
 
 ///////////////////Logic
+
+
+function secondsAsFrames(numOfSeconds){
+    return Math.floor(numOfSeconds * (1000/frameDistance));
+}
 
 //One dimensional collission detection, returns true if the values overlap
 function collides(object1start, object1end, object2start, object2end){
@@ -257,8 +330,10 @@ function gameloop(){
     console.log("Script active");
 
     var frameTimer = setInterval(step, frameDistance);
-    var toasterSpeed = 10;
+    var toasterSpeed = 17;
+    var toastSpeed = 12;
 
+    var viewportBoundaryTolerance = 10; //Amount the toaster is allowed to move out of the viewport
     var toasterX = 150;
     var toasterY = 150;
     var toasterLeftPosition = 0;
@@ -322,8 +397,7 @@ function gameloop(){
     }
     
     function fire(){
-        let toastSize = 60;
-        let toastSpeed = 12;
+        let toastSize = 70;
         
         let bulletYPosition = window.getComputedStyle(toasterBounds).top;
         bulletYPosition = bulletYPosition.substring(0, bulletYPosition.length - 2); //remove 'px' from end
@@ -334,15 +408,15 @@ function gameloop(){
     var toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
     gameObjects.push(toasterCollisionObject);
     
-    let level = new basicLevel(gameObjects, 1);
+    let level = new betterLevel(gameObjects, 0);
     let bg = new starryBackground();
     
     
     function step(){
-        if (keyLeft == true){
+        if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
             toasterLeftPosition -= toasterSpeed;
         }
-        else if (keyRight == true){
+        else if (keyRight == true && toasterLeftPosition + toasterX < (viewportWidth + viewportBoundaryTolerance)){
             toasterLeftPosition += toasterSpeed;
         }
         toaster.style.left = toasterLeftPosition + "px";
@@ -359,9 +433,18 @@ function gameloop(){
         let pointChange = collisionloop(gameObjects);
         
         points += pointChange;
-        console.log(points);
+        document.getElementById("pointsOutput").innerHTML = points;
         
         bg.step();
+        
+        if (level.isCompleted){
+            console.log("nice job!!");
+            let intensity = level.intensity + 2;
+            level = new betterLevel(gameObjects, intensity);
+            toasterSpeed += 1;
+            toastSpeed += 2;
+        }
+        
     }
 
 }
@@ -399,7 +482,156 @@ class basicLevel{
     }
 }
 
-
+class betterLevel{
+    constructor (gameObjectsCollection, intensity){
+        this.gameObjects = gameObjectsCollection;
+        this.intensity = intensity;
+        
+        this.frameCounter = 0; //Increment once per step
+        this.lastKeyframe = 0; //The last 'frame' where this level did something
+        
+        this.enemyWidth = 50;
+        this.enemyHeight = 50;
+        
+        this.multiplierValue = 0.1;
+        this.baseSpeed = 5 + (1 * (this.multiplierValue * intensity));
+        
+        this.isCompleted = false;
+        
+    }
+        
+    //for adjusting timing between sections
+    padTime(amountInSeconds){
+        this.frameCounter -= secondsAsFrames(amountInSeconds);
+    }
+        
+    step(){
+        let firstWave = secondsAsFrames(4);
+        let difficultyScale = this.multiplierValue * this.intensity;
+        
+        if (this.frameCounter == firstWave){
+            let enemy = new Enemy(viewportSevenths["2"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(0.8 - difficultyScale)){
+            let enemy = new Enemy(viewportSevenths["3"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(1.6 - difficultyScale)){
+            let enemy = new Enemy(viewportSevenths["4"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        
+        if (this.frameCounter == firstWave + secondsAsFrames(2.6 - difficultyScale)){
+            let enemy = new Enemy(viewportSevenths["7"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(3.4 - difficultyScale)){
+            let enemy = new Enemy(viewportSevenths["6"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(4.2 - difficultyScale)){
+            let enemy = new Enemy(viewportSevenths["5"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        
+        
+        //A-shaped formation
+        if (this.frameCounter == firstWave + secondsAsFrames(6 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["2"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            let enemy2 = new Enemy(viewportNinths["8"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(6.7 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["3"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            let enemy2 = new Enemy(viewportNinths["7"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(7.4 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["4"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            let enemy2 = new Enemy(viewportNinths["6"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(8.1 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["5"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+        }
+        
+        
+        //Pairs
+        if (this.frameCounter == firstWave + secondsAsFrames(9.5 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["1"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+            let enemy2 = new Enemy(viewportNinths["2"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(10.7 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["8"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+            let enemy2 = new Enemy(viewportNinths["9"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(11.9 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["3"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+            let enemy2 = new Enemy(viewportNinths["4"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(13.1 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["5"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+            let enemy2 = new Enemy(viewportNinths["6"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(14.3 - difficultyScale)){
+            let enemy = new Enemy(viewportNinths["8"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy);
+            let enemy2 = new Enemy(viewportNinths["9"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+            this.gameObjects.push(enemy2);
+        }
+        
+        //introduce dynamic enemies
+        if (this.frameCounter == firstWave + secondsAsFrames(16 - difficultyScale)){
+            let enemy = new DynamicEnemy(viewportSevenths["6"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 180, 130, secondsAsFrames(1.8), null, null);
+            let enemy2 = new DynamicEnemy(viewportSevenths["2"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 180, 130, secondsAsFrames(1.8), null, null);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        
+        if (this.frameCounter == firstWave + secondsAsFrames(18 - difficultyScale)){
+            let enemy = new DynamicEnemy(viewportNinths["5"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 35, this.gameObjects, 500, 50, secondsAsFrames(1.6), null, null);
+            this.gameObjects.push(enemy);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(19 - difficultyScale)){
+            let enemy = new DynamicEnemy(viewportNinths["4"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 35, this.gameObjects, 400, 50, secondsAsFrames(1.6), null, null);
+            let enemy2 = new DynamicEnemy(viewportNinths["6"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 35, this.gameObjects, 400, 50, secondsAsFrames(1.6), null, null);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        if (this.frameCounter == firstWave + secondsAsFrames(20 - difficultyScale)){
+            let enemy = new DynamicEnemy(viewportNinths["3"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 35, this.gameObjects, 300, 50, secondsAsFrames(1.6), null, null);
+            let enemy2 = new DynamicEnemy(viewportNinths["7"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 35, this.gameObjects, 300, 50, secondsAsFrames(1.6), null, null);
+            
+            this.gameObjects.push(enemy);
+            this.gameObjects.push(enemy2);
+        }
+        
+        if (this.frameCounter == firstWave + secondsAsFrames(25)){
+            this.isCompleted = true;
+        }
+        this.frameCounter++;
+        this.lastKeyframe++;
+    }
+        
+}
 
 
 ///////////////////Graphics
@@ -435,6 +667,7 @@ class starryBackground{
         this.starArray.forEach(star => {
            star.update();
         });
+        
         let randomVal = Math.random();
         if (randomVal < 0.05){
             //Very slow star
@@ -442,6 +675,7 @@ class starryBackground{
             this.starArray.push(star);
             return;
         }
+        
         if (randomVal < 0.15){
             //Slow star
             let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.slowStar, this.starArray, this);
@@ -477,7 +711,11 @@ class Star{
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
-        this.htmlContents = `<div class="star" id="` + this.ID + `">.</div>`;
+        
+        let star = '.';
+        let cssclass = "star";
+        
+        this.htmlContents = `<div class="` + cssclass + `" id="` + this.ID + `">` + star + `</div>`;
         
         document.getElementById("effectBounds").innerHTML += this.htmlContents;
         
@@ -486,8 +724,10 @@ class Star{
     }
     
     update(){
+        let starOnPage = document.getElementById(this.ID);
         this.yPos += (this.speed * this.bgInstance.speedMultiplier);
-        document.getElementById(this.ID).style.top = this.yPos + "px";
+        starOnPage.style.top = this.yPos + "px";
+        
         
         if (this.yPos > enemyBottomBound){
             this.destroy();
