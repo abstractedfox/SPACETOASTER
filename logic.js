@@ -110,29 +110,29 @@ function collisionloop(objectCollection){
 }
 
 function gameloop(){
-    var entirePage = document.getElementsByTagName("body");
-    var boundingBox = document.getElementById("boundingBox");
-    var toaster = document.getElementById("toaster");
+    let entirePage = document.getElementsByTagName("body");
+    let boundingBox = document.getElementById("boundingBox");
+    let toaster = document.getElementById("toaster");
     console.log("Script active");
 
-    var frameTimer = setInterval(step, frameDistance);
-    var toasterSpeed = 17;
-    var toastSpeed = 12;
+    let frameTimer = setInterval(step, frameDistance);
+    let toasterSpeed = 17;
+    let toastSpeed = 12;
 
-    var viewportBoundaryTolerance = 10; //Amount the toaster is allowed to move out of the viewport
-    var toasterX = 150;
-    var toasterY = 150;
-    var toasterLeftPosition = 0;
-    var toasterTopBoundPosition = ((viewportHeight / 7) * 6);
+    let viewportBoundaryTolerance = 10; //Amount the toaster is allowed to move out of the viewport
+    let toasterX = 150;
+    let toasterY = 150;
+    let toasterLeftPosition = 0;
+    let toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
-    var gameObjects = [];
-    var points = 0;
+    let gameObjects = [];
+    let points = 0;
 
     //Set up keyboard events
-    var keyLeft = false;
-    var keyRight = false;
-    var keyUp = false;
-    var keyDown = false;
+    let keyLeft = false;
+    let keyRight = false;
+    let keyUp = false;
+    let keyDown = false;
 
     document.onkeydown = keyStatePress;
     document.onkeyup = keyStateRelease;
@@ -214,7 +214,7 @@ function gameloop(){
         gameObjects.push(toasty);
     }
     
-    var toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
+    let toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
     gameObjects.push(toasterCollisionObject);
     
     let level = new betterLevel(gameObjects, 0);

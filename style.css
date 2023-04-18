@@ -209,3 +209,15 @@
 #playerHud h1{
     font-size: 3vh;
 }
+
+.smol{
+    font-size: 1vh;
+}
+
+#bottomBar{
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    font-family:  monospace;
+    font-size: 12pt;
+}
