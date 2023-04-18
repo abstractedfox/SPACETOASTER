@@ -5,13 +5,26 @@
 //tooling which facilitates the use or operation of such software.
 
 ///////////////////Gameplay objects
-class ToasterCollision{
+
+class GameplayObject{
     constructor(xPos, yPos, width, height, containerArray){
         this.alive = true;
         this.xPos = xPos;
         this.yPos = yPos;
         this.width = width;
         this.height = height;
+        
+        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
+        this.pointValue = 0;
+        
+        this.containerArray = containerArray;
+    }
+}
+
+class ToasterCollision extends GameplayObject{
+    constructor(xPos, yPos, width, height, containerArray){
+        super(xPos, yPos, width, height, containerArray);
+        
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.toaster;
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
@@ -47,22 +60,21 @@ class ToasterCollision{
     }
 }
 
-class Enemy{
+class Enemy extends GameplayObject{
     constructor(xPos, yPos, width, height, speed, containerArray){
-        this.alive = true;
+        super(xPos, yPos, width, height, containerArray);
+        
         this.xPos = xPos - (width / 2);
-        this.yPos = yPos;
-        this.width = width;
-        this.height = height;
+        
         this.speed = speed;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.enemy;
-        this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         this.pointValue = 50;
         
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
-        this.htmlContents = `<div class="enemy" id="` + this.ID + `"></div>`;
+        this.cssClass = "enemy";
+        this.htmlContents = `<div class="` + this.cssClass + `" id="` + this.ID + `"></div>`;
         
         document.getElementById("enemyBounds").innerHTML += this.htmlContents;
         
@@ -105,6 +117,8 @@ class DynamicEnemy extends Enemy{
     constructor(xPos, yPos, width, height, speed, containerArray, initialYPosStop, advanceAmount, advanceInterval, xPosTransformFunction, yPosTransformFunction){
         super(xPos, yPos, width, height, speed, containerArray);
         
+        let thisObject = document.getElementById(this.ID).setAttribute("class", "dynamicEnemy");
+        
         this.advanceAmount = advanceAmount;
         this.advanceInterval = advanceInterval;
         this.initialYPosStop = initialYPosStop;
@@ -114,6 +128,10 @@ class DynamicEnemy extends Enemy{
         
         this.xPosTransformFunction = xPosTransformFunction; //Placeholder for now; could pass a lambda here to perform a transformation on the x axis with each step. Pass null for now
         this.yPosTransformFunction = yPosTransformFunction;
+    }
+    
+    addToPage(){
+        document.getElementById("enemyBounds").innerHTML += this.htmlContents;
     }
     
     update(){
@@ -165,13 +183,10 @@ class DynamicEnemy extends Enemy{
     
 }
 
-class Bullet{
+class Bullet extends GameplayObject{
     constructor(xPos, yPos, width, height, speed, containerArray){
-        this.alive = true;
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.width = width;
-        this.height = height;
+        super(xPos, yPos, width, height, containerArray);
+        
         this.speed = speed;
         this.lastPos = this.xPos;
         this.objectType = gameplayObjects.toast;

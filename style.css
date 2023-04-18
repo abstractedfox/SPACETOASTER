@@ -43,6 +43,34 @@
     }
 }
 
+@keyframes redEnemyGlow{
+    0%{
+        background-color: red;
+    }
+    
+    50% {
+        background-color: #ff2200;
+    }
+    
+    100%{
+        background-color: red;
+    }
+}
+
+@keyframes blueEnemyGlow{
+    0%{
+        background-color: blue;
+    }
+    
+    50% {
+        background-color: #0011ff;
+    }
+    
+    100%{
+        background-color: blue;
+    }
+}
+
 #boundingBox{
     height: var(--viewport-height);
     width: var(--viewport-width);
@@ -128,7 +156,18 @@
     width: 20px;
     background-color: red;
     
-    animation-name: floatingInSpaceFast;
+    animation-name: floatingInSpaceFast, redEnemyGlow;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+
+.dynamicEnemy{
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    background-color: blue;
+    
+    animation-name: floatingInSpaceFast, blueEnemyGlow;
     animation-duration: 2s;
     animation-iteration-count: infinite;
 }
