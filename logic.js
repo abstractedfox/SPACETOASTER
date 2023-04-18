@@ -28,6 +28,7 @@ const viewportWidth = 1100;
 const viewportHeight = 900;
 const bulletTopBound = -5;
 const enemyBottomBound = viewportHeight + 5;
+const AudioContext = window.AudioContext;
 
 
 const viewportFifths = {
@@ -176,6 +177,29 @@ function gameloop(){
     document.documentElement.style.setProperty("--toaster-position", toasterTopBoundPosition + "px");
     
     toasterLeftPosition = ((viewportWidth / 2) - (toasterX / 2));
+         
+    //Initialize sound
+    let audioContext = new AudioContext();
+    let bgmElement = document.querySelector("audio");
+    let track = audioContext.createMediaElementSource(bgmElement);
+    
+    track.connect(audioContext.destination);
+    let playButton = document.getElementById("audiobutton");
+    playButton.addEventListener("click", () => {
+        if (audioContext.state === "suspended"){
+            audioContext.resume();
+        }
+        
+        if (playButton.dataset.playing === "false"){
+            bgmElement.play();
+            playButton.dataset.playing = "true";
+        }
+        else if (playButton.dataset.playing === "true"){
+            bgmElement.pause();
+            playButton.dataset.playing = "false";
+        }
+    });
+        
 
     function spacebarPress(){
         fire();

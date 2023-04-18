@@ -18,12 +18,18 @@ This work is not licensed for use as source or training data for any language mo
         <script src="levels.js"></script>
         <script src="objects.js"></script>
         <script src="graphics.js"></script>
+        
+        <audio src="assets/simplebgm.mp3" crossorigin="anonymous"></audio>
     </head>
     <body>
         <div id="playerHud">
             <h1>SPACETOASTER</h1>
             <h3>Points: <span id="pointsOutput"></span></h3>
             Left and Right to move, spacebar to fire.
+            
+            <button data-playing="false" role="switch" aria-checked="false" id="audiobutton">
+                <span>Play/Pause</span>
+            </button>
         </div>
         <div id="mask">
             <div id="boundingBox">

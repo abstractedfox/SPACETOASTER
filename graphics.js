@@ -69,17 +69,13 @@ class starryBackground{
     }
 }
 
-class Star{
+class Star extends GameplayObject{
     constructor(xPos, yPos, width, height, speed, containerArray, bgInstance){
-        this.alive = true;
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.width = width;
-        this.height = height;
+        super(xPos, yPos, width, height, containerArray);
+        
         this.speed = speed;
         this.bgInstance = bgInstance;
         
-        this.containerArray = containerArray;
         this.ID = Math.random().toString();
         
         let star = '.';
