@@ -26,9 +26,13 @@ This work is not licensed for use as source or training data for any language mo
             <h1>SPACETOASTER</h1>
             <h3>Points: <span id="pointsOutput"></span></h3>
             Left and Right to move, spacebar to fire.
-            
-            <button data-playing="false" role="switch" aria-checked="false" id="audiobutton">
-                <span>Play/Pause</span>
+            <br><br>
+            <div class="smol">
+                Special Early Alpha Feature: Due to the vastness of space, you may need to size the page down to 90% to prevent enemies exiting the bottom from resizing the viewport dimensions.
+            </div>
+            <button data-playing="false" role="switch" aria-checked="false" id="audiobutton"
+                style="display:none">
+                <span>BGM Play/Pause</span>
             </button>
         </div>
         <div id="mask">
@@ -44,6 +48,8 @@ This work is not licensed for use as source or training data for any language mo
                 <div id="effectBounds"></div>
             </div>
         </div>
+        
+        <div id="bottomBar">Original game & assets by Chris/abstractedfox, copyright 2023. Toaster reflection texture from NASA/JPL-Caltech</div>
         <script>gameloop();</script>
     </body>
 </html>
