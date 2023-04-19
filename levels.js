@@ -5,6 +5,22 @@
 //tooling which facilitates the use or operation of such software.
 
 ///////////////////Level scripts
+class sequence{
+    constructor (gameObjectsCollection, speedMultiplier, initOffset){
+        this.gameObjects = gameObjectsCollection;
+        this.speedMultiplier = speedMultiplier;
+        this.initOffset = initOffset;
+        
+        this.isCompleted = false;
+        
+        this.frameCounter = 0;
+    }
+    
+    step(){
+        this.frameCounter++;
+    }
+}
+
 class basicLevel{
     constructor (gameObjectsCollection, intensity){
         this.gameObjects = gameObjectsCollection;
