@@ -5,11 +5,11 @@
 //tooling which facilitates the use or operation of such software.
 
 ///////////////////Level scripts
+//Base class for sequences
 class sequence{
-    constructor (gameObjectsCollection, speedMultiplier, initOffset){
+    constructor (gameObjectsCollection, speedMultiplier){
         this.gameObjects = gameObjectsCollection;
         this.speedMultiplier = speedMultiplier;
-        this.initOffset = initOffset;
         
         this.isCompleted = false;
         
@@ -28,7 +28,6 @@ class sequence{
             if (this.subsequence == null || 
                 this.subsequence.hasOwnProperty("isCompleted") && this.subsequence.isCompleted === true){
 
-                //console.log("Not a subsequence!" + this.frameCounter);
                 if (this.eventptr > this.events.length - 1){
                     if (this.exitCondition != null && !this.exitCondition()){
                         return;
@@ -42,7 +41,7 @@ class sequence{
                 //If the previous event was a subsequence, set the lastKeyframe
                 if (this.eventptr > 0 && this.events[this.eventptr - 1] != null && this.events[this.eventptr - 1].hasOwnProperty("isCompleted")){
                     //console.log("Setting this.lastKeyframe after a subsequence!" + this.frameCounter);
-                    this.lastKeyframe = this.frameCounter - 1;
+                    this.lastKeyframe = 0;
                     this.events[this.eventptr - 1] = null;
                 }
                 
@@ -58,12 +57,13 @@ class sequence{
                 //The current element is a frame wait
                 if (!isNaN(this.events[this.eventptr])){
                     //console.log("Frame wait!" + this.frameCounter + " lastKeyframe: " + this.lastKeyframe);
-                    if (this.events[this.eventptr] > (this.frameCounter - this.lastKeyframe)){
+                    //if (this.events[this.eventptr] > (this.frameCounter - this.lastKeyframe)){
+                    if (this.events[this.eventptr] > this.lastKeyframe){
                         return;
                     }
                     else {
                         //console.log("Advancing past frame wait. " + this.events[this.eventptr] + " < " + (this.frameCounter - this.lastKeyframe));
-                        this.lastKeyframe = this.eventptr;
+                        this.lastKeyframe = 0;
                         this.eventptr++;
                         return;
                     }
@@ -72,7 +72,7 @@ class sequence{
                 //The current element is not a frame wait or a subsequence, so execute it
                 //console.log("Executing line!" + this.frameCounter);
                 this.events[this.eventptr]();
-                this.lastKeyframe = this.frameCounter;
+                this.lastKeyframe = 0;
                 this.eventptr++;
             }
 
@@ -84,13 +84,138 @@ class sequence{
         })();
         
         this.frameCounter++;
+        this.lastKeyframe++;
+    }
+}
+
+//A simple example sequence
+class basicSequence extends sequence{
+    constructor(gameObjectsCollection, speedMultiplier){
+        super(gameObjectsCollection, speedMultiplier);
+
+        this.exitCondition = () => {
+            var result = true;
+            this.gameObjects.forEach(object => {
+                if (object.hasOwnProperty("objectType") && object.objectType == "enemy" && object.alive) result = false;
+            });
+
+            return result;
+        }
+
+        this.enemyWidth = 50;
+        this.enemyHeight = 50;
+        this.baseSpeed = 5;
+
+        this.events = [
+            60,
+            () => {
+                let enemy = new Enemy(viewportSevenths["2"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportSevenths["3"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportSevenths["4"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            90,
+            () => {
+                let enemy = new Enemy(viewportSevenths["6"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportSevenths["5"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportSevenths["4"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                this.gameObjects.push(enemy);
+            },
+            90,
+
+            () => {
+                let enemy = new Enemy(viewportNinths["8"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                let enemy2 = new Enemy(viewportNinths["2"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+                this.gameObjects.push(enemy2);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportNinths["7"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                let enemy2 = new Enemy(viewportNinths["3"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+                this.gameObjects.push(enemy2);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportNinths["6"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                let enemy2 = new Enemy(viewportNinths["4"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+                this.gameObjects.push(enemy2);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportNinths["5"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+            },
+            90,
+            () => {
+                let enemy = new DynamicEnemy(viewportSevenths["6"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 400, 130, secondsAsFrames(1.8), null, null);
+                let enemy2 = new DynamicEnemy(viewportSevenths["2"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 400, 130, secondsAsFrames(1.8), null, null);
+                
+                this.gameObjects.push(enemy);
+                this.gameObjects.push(enemy2);
+            },
+            50,
+            () => {
+                let enemy = new Enemy(viewportNinths["5"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportNinths["7"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new DynamicEnemy(viewportSevenths["5"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 600, 130, secondsAsFrames(1.8), null, null);
+                let enemy2 = new DynamicEnemy(viewportSevenths["3"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 600, 130, secondsAsFrames(1.8), null, null);
+                
+                this.gameObjects.push(enemy);
+                this.gameObjects.push(enemy2);
+            },
+            50,
+            () => {
+                let enemy = new Enemy(viewportNinths["4"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+            },
+            60,
+            () => {
+                let enemy = new Enemy(viewportNinths["6"] - viewportNinths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed, this.gameObjects);
+                
+                this.gameObjects.push(enemy);
+            }
+        ]
     }
 }
 
 
 class sequenceTest extends sequence{
-    constructor(gameObjectsCollection, speedMultiplier, initOffset){
-        super(gameObjectsCollection, speedMultiplier, initOffset);
+    constructor(gameObjectsCollection, speedMultiplier){
+        super(gameObjectsCollection, speedMultiplier);
 
         this.exitCondition = () => {
             var result = true;
@@ -137,8 +262,8 @@ class sequenceTest extends sequence{
 }
 
 class subsequenceTest extends sequence{
-    constructor(gameObjectsCollection, speedMultiplier, initOffset){
-        super(gameObjectsCollection, speedMultiplier, initOffset);
+    constructor(gameObjectsCollection, speedMultiplier){
+        super(gameObjectsCollection, speedMultiplier);
         
         this.enemyWidth = 50;
         this.enemyHeight = 50;
@@ -167,6 +292,9 @@ class subsequenceTest extends sequence{
 }
 
 
+
+
+///////////////////Old scripts from before the new level scripting was finished, probably unnecessary now
 class spawnRandomEnemies{
     constructor (gameObjectsCollection, intensity){
         this.gameObjects = gameObjectsCollection;

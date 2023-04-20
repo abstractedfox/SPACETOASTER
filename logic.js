@@ -119,7 +119,7 @@ function gameloop(){
     let toasterSpeed = 17;
     let toastSpeed = 14;
 
-    let viewportBoundaryTolerance = 10; //Amount the toaster is allowed to move out of the viewport
+    let viewportBoundaryTolerance = 25; //Amount the toaster is allowed to move out of the viewport
     let toasterX = 150;
     let toasterY = 150;
     let toasterLeftPosition = 0;
@@ -217,8 +217,8 @@ function gameloop(){
     let toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
     gameObjects.push(toasterCollisionObject);
     
-    //let level = new betterLevel(gameObjects, 0);
-    let level = new sequenceTest(gameObjects, 1, 0);
+    
+    let level = new basicSequence(gameObjects, 1);
     let bg = new starryBackground();
     
     
@@ -229,6 +229,8 @@ function gameloop(){
         else if (keyRight == true && toasterLeftPosition + toasterX < (viewportWidth + viewportBoundaryTolerance)){
             toasterLeftPosition += toasterSpeed;
         }
+        if (toasterLeftPosition < (0-viewportBoundaryTolerance)) toasterLeftPosition = 0 - viewportBoundaryTolerance;
+        if (toasterLeftPosition > (viewportWidth - toasterX + viewportBoundaryTolerance)) toasterLeftPosition = viewportWidth - toasterX + viewportBoundaryTolerance;
         toaster.style.left = toasterLeftPosition + "px";
         
         level.step();
@@ -246,10 +248,7 @@ function gameloop(){
         
         if (level.isCompleted){
             console.log("nice job!!");
-            let intensity = level.intensity + 2;
-            level = new sequenceTest(gameObjects, 1, 0);
-            toasterSpeed += 1;
-            toastSpeed += 2;
+            level = new basicSequence(gameObjects, 1, 0);
         }
         
     }
