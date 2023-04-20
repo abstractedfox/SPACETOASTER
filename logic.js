@@ -217,7 +217,8 @@ function gameloop(){
     let toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
     gameObjects.push(toasterCollisionObject);
     
-    let level = new betterLevel(gameObjects, 0);
+    //let level = new betterLevel(gameObjects, 0);
+    let level = new sequenceTest(gameObjects, 1, 0);
     let bg = new starryBackground();
     
     
@@ -246,7 +247,7 @@ function gameloop(){
         if (level.isCompleted){
             console.log("nice job!!");
             let intensity = level.intensity + 2;
-            level = new betterLevel(gameObjects, intensity);
+            level = new sequenceTest(gameObjects, 1, 0);
             toasterSpeed += 1;
             toastSpeed += 2;
         }
