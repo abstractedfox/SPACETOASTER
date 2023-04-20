@@ -4,9 +4,20 @@ gameloop() is called once on the page and starts the game. Numerous CSS attribut
 
 var frameTimer = setInterval(...) starts the actual game loop. 16ms is approx 60fps (slightly slower). We're not using any delta time calculations right now so timings are hardcoded; setting a higher or lower value will make the entire game change in speed.
 
-Most gameplay objects (bullets, enemies) follow a similar pattern in their design: constructor that accepts relevant parameters to that object, an update function, a collide function, and a destroy function. update() is called on every step and takes no arguments. collide() should accept a single argument matching a value in the 'gameplayObjects' constant, and a switch statement to handle relevant collisions.
+Gameplay objects should extend the GameplayObject class, which provides a few things that will be necessary for any object. Objects should then implement update(), and optionally destroy() and collide() if these are relevant to it. update() is called on every step and takes no arguments. collide() should accept a single argument matching a value in the 'gameplayObjects' constant, and a switch statement to handle relevant collisions. Objects that have a collide() function should have a field titled "objectType" populated with a value from the 'gameplayObjects' enum.
 Gameplay objects' constructors also accept an array which tracks that object; this array will be referenced in that object's destroy() function. When destroy() is called, the object should remove itself from the page and from the referenced array.
 
 In the gameplay loop, the 'gameObjects' array is the array we use for this, and contains all of these objects. For this reason, when instantiating a new gameplay object, the object must be added to the array, and the array must be passed to the object.
 
-Toaster movement was hardcoded at the super early stages; it's represented on the screen by a CSS object that is updated in each call of the step() function, but its collision mesh is an instance of the ToasterCollision object which works like all the other game objects.
+Toaster movement is still hardcoded into the main game loop; it's represented on the screen with a hardcoded div whose CSS attributes are updated in each call of the step() function, but its collision box is an instance of the ToasterCollision object which works like all the other game objects.
+
+Level scripting:
+A more thought-out level scripting system now exists! To script a level:
+-Create a class extending 'sequence' from levels.js, and call super() in the constructor
+-The level is scripted in the 'events' array. The array is iterated once per step, and responds to the following types:
+Functions will be called on the step where they are reached.
+Integers represent a frame delay; array iteration will not advance past that integer until that number of frames has passed.
+Instances of other sequences will run, and array iteration will not resume until that sequence completes.
+
+Sequence constructors do take an argument for a speed modifier, but it's up to the programmer to implement this in a given level script. 
+A sequence indicates completion by changing its "isCompleted" field to true, and the base class will do this as soon as the level script has been executed fully. This may not always be desirable though, so there's an optional 'exitCondition' field which can be set with a lambda (or any boolean) to create additional conditions for a sequence to indicate completion. This could be used for something like "until all enemies have been destroyed" to keep sequences from running into each other, or to create sequences that can run indefinitely for a boss enemy. This field can be left null if this functionality isn't needed. It only gets checked after "isCompleted" has been set to true, at which point it will be checked on every frame, so be mindful of this if populating it with a function.

@@ -28,6 +28,18 @@
     }
 }
 
+@keyframes shake{
+    0%{
+        margin-left: 0px;
+    }
+    50%{
+        margin-left: -2px;
+    }
+    100%{
+        margin-left: 0px;
+    }
+}
+
 @keyframes twinklingStar{
     0%{
         color: #ffffff;
@@ -167,8 +179,8 @@
     width: 20px;
     background-color: blue;
     
-    animation-name: floatingInSpaceFast, blueEnemyGlow;
-    animation-duration: 2s;
+    animation-name: shake, blueEnemyGlow;
+    animation-duration: 0.06s;
     animation-iteration-count: infinite;
 }
 

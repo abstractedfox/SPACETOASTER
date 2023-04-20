@@ -19,6 +19,7 @@ class GameplayObject{
         
         this.containerArray = containerArray;
     }
+
 }
 
 class ToasterCollision extends GameplayObject{
