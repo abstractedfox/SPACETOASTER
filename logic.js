@@ -116,8 +116,8 @@ function gameloop(){
     console.log("Script active");
 
     let frameTimer = setInterval(step, frameDistance);
-    let toasterSpeed = 17;
-    let toastSpeed = 14;
+    let toasterSpeed = 18;
+    let toastSpeed = 15;
 
     let viewportBoundaryTolerance = 25; //Amount the toaster is allowed to move out of the viewport
     let toasterX = 150;

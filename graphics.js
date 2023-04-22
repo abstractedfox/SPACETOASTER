@@ -111,3 +111,9 @@ class Star extends GameplayObject{
     }
 }
 
+class Particle extends GameplayObject{
+    constructor(xPos, yPos, angle, duration, speed, containerArray){
+        super(xPos, yPos, 10, 10, containerArray);
+        
+    }
+}
