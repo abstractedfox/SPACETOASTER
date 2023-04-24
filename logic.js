@@ -116,8 +116,8 @@ function gameloop(){
     console.log("Script active");
 
     let frameTimer = setInterval(step, frameDistance);
-    let toasterSpeed = 17;
-    let toastSpeed = 14;
+    let toasterSpeed = 18;
+    let toastSpeed = 15;
 
     let viewportBoundaryTolerance = 25; //Amount the toaster is allowed to move out of the viewport
     let toasterX = 150;
@@ -126,6 +126,7 @@ function gameloop(){
     let toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
     let gameObjects = [];
+    let effectObjects = [];
     let points = 0;
 
     //Set up keyboard events
@@ -221,7 +222,6 @@ function gameloop(){
     let level = new basicSequence(gameObjects, 1);
     let bg = new starryBackground();
     
-    
     function step(){
         if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
             toasterLeftPosition -= toasterSpeed;
@@ -236,6 +236,10 @@ function gameloop(){
         level.step();
         
         gameObjects.forEach(item => {
+            item.update();
+        });
+        
+        effectObjects.forEach(item => {
             item.update();
         });
         

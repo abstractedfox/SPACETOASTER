@@ -190,7 +190,7 @@
     color: #ffffff;
     margin-top: -8px;
     z-index: -9;
-    
+    text-align: center;
 }
 
 .twinklingstar{
@@ -203,6 +203,10 @@
     animation-duration: 2s;
     animation-iteration-count: infinite;
     
+}
+
+.explosion{
+    background-color: green;
 }
 
 #playerHud{
