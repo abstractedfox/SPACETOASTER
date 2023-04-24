@@ -13,6 +13,7 @@ class GameplayObject{
         this.yPos = yPos;
         this.width = width;
         this.height = height;
+        this.onDestroy = null;
         
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         this.pointValue = 0;
@@ -64,7 +65,8 @@ class ToasterCollision extends GameplayObject{
 class Enemy extends GameplayObject{
     constructor(xPos, yPos, width, height, speed, containerArray){
         super(xPos, yPos, width, height, containerArray);
-        
+        this.width = width;
+        this.height = height;
         this.xPos = xPos - (width / 2);
         
         this.speed = speed;
@@ -83,6 +85,10 @@ class Enemy extends GameplayObject{
         document.getElementById(this.ID).style.top = this.yPos + "px";
         document.getElementById(this.ID).style.width = this.width + "px";
         document.getElementById(this.ID).style.height = this.height + "px";
+        
+        this.onDestroy = () => {
+            
+        };
     }
     
     update(){
@@ -110,6 +116,10 @@ class Enemy extends GameplayObject{
         document.getElementById(this.ID).remove();
         this.containerArray.splice(this.containerArray.indexOf(this), 1);
         this.alive = false;
+        
+        if (this.onDestroy != null){
+            this.onDestroy();
+        }
     }
 }
 

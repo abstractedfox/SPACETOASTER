@@ -126,6 +126,7 @@ function gameloop(){
     let toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
     let gameObjects = [];
+    let effectObjects = [];
     let points = 0;
 
     //Set up keyboard events
@@ -221,7 +222,6 @@ function gameloop(){
     let level = new basicSequence(gameObjects, 1);
     let bg = new starryBackground();
     
-    
     function step(){
         if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
             toasterLeftPosition -= toasterSpeed;
@@ -236,6 +236,10 @@ function gameloop(){
         level.step();
         
         gameObjects.forEach(item => {
+            item.update();
+        });
+        
+        effectObjects.forEach(item => {
             item.update();
         });
         
