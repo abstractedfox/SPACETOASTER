@@ -118,6 +118,7 @@ class ParticleExplosion extends GameplayObject{
         this.ID = Math.random().toString();
         this.duration = duration;
         this.color = color;
+        this.baseSpeed = 5;
         
         let cssclass="explosion";
         this.htmlContents = `<div class="` + cssclass + `" id="` + this.ID + `"></div>`;
@@ -134,17 +135,17 @@ class ParticleExplosion extends GameplayObject{
         let randomVal = Math.random();
         
         if (this.density > Math.random()){
-            let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), 2 + (Math.random() * 5), this.containerArray, this.color);
+            let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color);
             this.containerArray.push(particle);
             
             if (randomVal > 0.4){
-                let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), 2 + (Math.random() * 5), this.containerArray, this.color);
+                let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color);
                 this.containerArray.push(particle);
             }
             
             if (this.density > 0.9){
-                let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), 2 + (Math.random() * 5), this.containerArray, this.color);
-                let particle2 = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), 2 + (Math.random() * 5), this.containerArray, this.color);
+                let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color);
+                let particle2 = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color);
                 
                 this.containerArray.push(particle);
                 this.containerArray.push(particle2);

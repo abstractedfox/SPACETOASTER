@@ -31,6 +31,7 @@ const enemyBottomBound = viewportHeight + 5;
 const AudioContext = window.AudioContext;
 
 
+//Handy shortcuts for object positioning without having to hardcode pixel values all over the place
 const viewportFifths = {
     "1": (viewportWidth / 5),
     "2": (viewportWidth / 5) * 2,
@@ -121,7 +122,7 @@ function gameloop(){
 
     let viewportBoundaryTolerance = 25; //Amount the toaster is allowed to move out of the viewport
     let toasterX = 150;
-    let toasterY = 150;
+    let toasterY = 80;
     let toasterLeftPosition = 0;
     let toasterTopBoundPosition = ((viewportHeight / 7) * 6);
 
@@ -219,7 +220,7 @@ function gameloop(){
     gameObjects.push(toasterCollisionObject);
     
     
-    let level = new basicSequence(gameObjects, 1);
+    let level = new basicSequence(gameObjects, 1, effectObjects);
     let bg = new starryBackground();
     
     function step(){
@@ -252,7 +253,7 @@ function gameloop(){
         
         if (level.isCompleted){
             console.log("nice job!!");
-            level = new basicSequence(gameObjects, 1, 0);
+            level = new basicSequence(gameObjects, 1, effectObjects);
         }
         
     }
