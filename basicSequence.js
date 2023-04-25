@@ -143,25 +143,6 @@ class ExplodingEnemy extends Enemy{
         super(xPos, yPos, width, height, speed, containerArray);
         this.effectObjectsCollection = effectObjectsCollection;
         
-        /*
-        this.onDestroy = () => {
-            genericExplosion();
-            return;
-            if (this.lastCollisionType == gameplayObjects.toast ||
-                this.lastCollisionType == gameplayObjects.toaster){
-                let baseDuration = 2;
-                //constructor(xPos, yPos, width, height, containerArray, density, duration, color)
-                let explode1 = new ParticleExplosion(this.xPos, this.yPos, 10, 10, this.effectObjectsCollection, 1, baseDuration, "red");
-                
-                let explode2 = new ParticleExplosion(this.xPos, this.yPos, 10, 10, this.effectObjectsCollection, 0.7, baseDuration, "orange");
-                
-                let explode3 = new ParticleExplosion(this.xPos, this.yPos, 10, 10, this.effectObjectsCollection, 0.6, baseDuration - 2, "white");
-                
-                this.effectObjectsCollection.push(explode1);
-                this.effectObjectsCollection.push(explode2);
-                this.effectObjectsCollection.push(explode3);
-            }
-        }*/
         this.onDestroy = genericExplosion;
     }
     
