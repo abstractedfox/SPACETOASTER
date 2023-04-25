@@ -14,13 +14,23 @@ class GameplayObject{
         this.width = width;
         this.height = height;
         this.onDestroy = null;
+        this.lastCollisionType = null;
         
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         this.pointValue = 0;
         
         this.containerArray = containerArray;
+        
+        this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
     }
-
+    
+    destroy(){
+        this.onDestroy(this);
+    }
+    
+    collide(gameplayObject){
+        this.lastCollisionType = gameplayObject;
+    }
 }
 
 class ToasterCollision extends GameplayObject{
@@ -49,6 +59,7 @@ class ToasterCollision extends GameplayObject{
     }
     
     collide(gameplayObject){
+        super.collide(gameplayObject);
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 console.log("Toaster hit!");
@@ -86,9 +97,6 @@ class Enemy extends GameplayObject{
         document.getElementById(this.ID).style.width = this.width + "px";
         document.getElementById(this.ID).style.height = this.height + "px";
         
-        this.onDestroy = () => {
-            
-        };
     }
     
     update(){
@@ -101,6 +109,7 @@ class Enemy extends GameplayObject{
     }
     
     collide(gameplayObject){
+        super.collide(gameplayObject);
         switch(gameplayObject){
             case gameplayObjects.toast:
                 this.pointChange += this.pointValue;
@@ -112,14 +121,12 @@ class Enemy extends GameplayObject{
     }
     
     destroy(){
+        super.destroy();
         if (!this.alive) return;
         document.getElementById(this.ID).remove();
         this.containerArray.splice(this.containerArray.indexOf(this), 1);
         this.alive = false;
         
-        if (this.onDestroy != null){
-            this.onDestroy();
-        }
     }
 }
 
@@ -229,6 +236,7 @@ class Bullet extends GameplayObject{
     }
     
     collide(gameplayObject){
+        super.collide(gameplayObject);
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 this.destroy();
