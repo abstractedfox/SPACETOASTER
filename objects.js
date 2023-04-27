@@ -13,15 +13,16 @@ class GameplayObject{
         this.yPos = yPos;
         this.width = width;
         this.height = height;
-        this.onDestroy = null;
+
+        this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
         this.lastCollisionType = null;
+        this.messageStackOutput = null; //Populate with an array if this object is intended to post messages
         
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         this.pointValue = 0;
         
         this.containerArray = containerArray;
         
-        this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
     }
     
     destroy(){
@@ -64,7 +65,12 @@ class ToasterCollision extends GameplayObject{
             case gameplayObjects.enemy:
                 console.log("Toaster hit!");
                 this.pointChange += this.pointValue;
-            
+                if (this.messageStackOutput != null){
+                    this.messageStackOutput.push(new Message(messageTypeEnum.TOASTER_DEATH, {
+                        "xPos": this.xPos,
+                        "yPos": this.yPos,
+                        "gameplayObject": gameplayObject}));
+                }
         }
     }
     

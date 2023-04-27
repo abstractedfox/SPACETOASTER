@@ -13,6 +13,13 @@ const gameplayObjects = {
     destroy: "destroy"
 }
 
+const gameStateEnum = {
+    running: "running",
+    paused: "paused",
+    titleScreen: "titleScreen",
+    toasterDeath: "toasterDeath"
+}
+
 const toastGraphic = `<div id="toastInnerContainer">
 <div id="toastBody"></div>
 <div id="toastTop"></div>
@@ -128,7 +135,9 @@ function gameloop(){
 
     let gameObjects = [];
     let effectObjects = [];
+    let messageStack = [];
     let points = 0;
+    let gameState = gameStateEnum.running;
 
     //Set up keyboard events
     let keyLeft = false;
@@ -224,6 +233,10 @@ function gameloop(){
     let bg = new starryBackground();
     
     function step(){
+        let messages = messageStack.slice(0);
+        messageStack = [];
+
+        //Toaster logic
         if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
             toasterLeftPosition -= toasterSpeed;
         }
@@ -234,6 +247,7 @@ function gameloop(){
         if (toasterLeftPosition > (viewportWidth - toasterX + viewportBoundaryTolerance)) toasterLeftPosition = viewportWidth - toasterX + viewportBoundaryTolerance;
         toaster.style.left = toasterLeftPosition + "px";
         
+        //Advance frame-level processes
         level.step();
         
         gameObjects.forEach(item => {

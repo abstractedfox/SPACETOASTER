@@ -15,6 +15,7 @@ class sequence{
         
         this.frameCounter = 0;
         this.lastKeyframe = 0;
+        this.lastCheckpoint = 0;
 
         this.events = [];
         this.eventptr = 0; //The array element to be executed next
@@ -40,29 +41,29 @@ class sequence{
 
                 //If the previous event was a subsequence, set the lastKeyframe
                 if (this.eventptr > 0 && this.events[this.eventptr - 1] != null && this.events[this.eventptr - 1].hasOwnProperty("isCompleted")){
-                    //console.log("Setting this.lastKeyframe after a subsequence!" + this.frameCounter);
                     this.lastKeyframe = 0;
                     this.events[this.eventptr - 1] = null;
+                }
+
+                //Setting the checkpoint advances the eventptr but does not return
+                if (this.events[this.eventptr] == "checkpoint"){
+                    this.lastCheckpoint = this.eventptr;
+                    this.eventptr++;
                 }
                 
                 //The current element is a subsequence
                 if (this.events[this.eventptr].hasOwnProperty("isCompleted")){
-                    //console.log("Starting a subsequence!" + this.frameCounter);
                     this.subsequence = this.events[this.eventptr];
-                    //this.subsequence.step();
                     this.eventptr++;
                     return;
                 }
 
                 //The current element is a frame wait
                 if (!isNaN(this.events[this.eventptr])){
-                    //console.log("Frame wait!" + this.frameCounter + " lastKeyframe: " + this.lastKeyframe);
-                    //if (this.events[this.eventptr] > (this.frameCounter - this.lastKeyframe)){
                     if (this.events[this.eventptr] > this.lastKeyframe){
                         return;
                     }
                     else {
-                        //console.log("Advancing past frame wait. " + this.events[this.eventptr] + " < " + (this.frameCounter - this.lastKeyframe));
                         this.lastKeyframe = 0;
                         this.eventptr++;
                         return;
@@ -70,7 +71,6 @@ class sequence{
                 }
 
                 //The current element is not a frame wait or a subsequence, so execute it
-                //console.log("Executing line!" + this.frameCounter);
                 this.events[this.eventptr]();
                 this.lastKeyframe = 0;
                 this.eventptr++;
