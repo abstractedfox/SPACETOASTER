@@ -22,7 +22,9 @@ class GameplayObject{
         this.pointValue = 0;
         
         this.containerArray = containerArray;
-        
+
+        //If true, advancement of this sequence should not be blocked by other sequences
+        this.canRunConcurrently = false;
     }
     
     destroy(){
@@ -63,19 +65,22 @@ class ToasterCollision extends GameplayObject{
         super.collide(gameplayObject);
         switch(gameplayObject){
             case gameplayObjects.enemy:
-                console.log("Toaster hit!");
+                if (!this.alive) return;
+
                 this.pointChange += this.pointValue;
+                this.alive = false;
                 if (this.messageStackOutput != null){
-                    this.messageStackOutput.push(new Message(messageTypeEnum.TOASTER_DEATH, {
+                    this.messageStackOutput.PushMessage(new Message(messageTypeEnum.TOASTER_DEATH, {
                         "xPos": this.xPos,
                         "yPos": this.yPos,
                         "gameplayObject": gameplayObject}));
                 }
+                break;
         }
     }
     
     destroy(){
-        
+
     }
 }
 
@@ -120,9 +125,11 @@ class Enemy extends GameplayObject{
             case gameplayObjects.toast:
                 this.pointChange += this.pointValue;
                 this.destroy();
+                break;
             
             case gameplayObjects.toaster:
                 this.destroy();
+                break;
         }
     }
     
@@ -246,9 +253,11 @@ class Bullet extends GameplayObject{
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 this.destroy();
+                break;
             
             case gameplayObjects.destroy:
                 this.destroy();
+                break;
         }
     }
     

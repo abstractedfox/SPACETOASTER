@@ -14,8 +14,10 @@ const gameplayObjects = {
 }
 
 const gameStateEnum = {
+    default: "default",
     running: "running",
     paused: "paused",
+    unpausing: "unpausing",
     titleScreen: "titleScreen",
     toasterDeath: "toasterDeath"
 }
@@ -135,8 +137,8 @@ function gameloop(){
 
     let gameObjects = [];
     let effectObjects = [];
-    let messageStack = [];
-    let points = 0;
+    let messageStack = new MessageStack();
+    let points = {value: 0};
     let gameState = gameStateEnum.running;
 
     //Set up keyboard events
@@ -226,15 +228,19 @@ function gameloop(){
     }
     
     let toasterCollisionObject = new ToasterCollision(toasterLeftPosition, toasterTopBoundPosition, toasterX, toasterY, gameObjects);
+    toasterCollisionObject.messageStackOutput = messageStack;
     gameObjects.push(toasterCollisionObject);
     
     
     let level = new basicSequence(gameObjects, 1, effectObjects);
     let bg = new starryBackground();
+    let sequenceDispatcher = new sequenceDispatch(gameObjects);
+    sequenceDispatcher.mainSequence = level;
+    sequenceDispatcher.state = gameStateEnum.running;
+    sequenceDispatcher.refPoints = points;
     
     function step(){
-        let messages = messageStack.slice(0);
-        messageStack = [];
+        let lastStepMessages = messageStack.GetMessagesAndClear();
 
         //Toaster logic
         if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
@@ -248,7 +254,10 @@ function gameloop(){
         toaster.style.left = toasterLeftPosition + "px";
         
         //Advance frame-level processes
-        level.step();
+
+        //level.step();
+        sequenceDispatcher.lastStepMessages = lastStepMessages;
+        sequenceDispatcher.step();
         
         gameObjects.forEach(item => {
             item.update();
@@ -259,19 +268,20 @@ function gameloop(){
         });
         
         let pointChange = collisionloop(gameObjects);
+        messageStack.PushMessage(new Message(messageTypeEnum.POINT_CHANGE, pointChange));
         
-        points += pointChange;
-        document.getElementById("pointsOutput").innerHTML = points;
+        //points += pointChange;
+        document.getElementById("pointsOutput").innerHTML = points["value"];
         
         bg.step();
         
+        //This block gets removed once sequenceDispatcher is finished
         if (level.isCompleted){
             console.log("nice job!!");
-            level = new basicSequence(gameObjects, 1, effectObjects);
+            sequenceDispatcher.mainSequence = new basicSequence(gameObjects, 1, effectObjects);
+            level = sequenceDispatcher.mainSequence;
         }
         
     }
 
 }
-
-

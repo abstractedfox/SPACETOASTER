@@ -13,17 +13,26 @@ class sequence{
         
         this.isCompleted = false;
         
-        this.frameCounter = 0;
         this.lastKeyframe = 0;
         this.lastCheckpoint = 0;
 
         this.events = [];
+        this.unmodifiedEvents = null;
+
         this.eventptr = 0; //The array element to be executed next
         this.subsequence = null; //if a subsequence is started within the event list, this should contain its instance
         this.exitCondition = null; //an optional lambda to use as an additional exit condition
+        this.name = ""; //An optional name for identifying unique sequences
+
+        this.hasBeenInitialized = false;
+    }
+
+    runtimeInit(){
+        this.unmodifiedEvents = this.events.slice();
     }
     
     step(){
+        if (!this.hasBeenInitialized) this.runtimeInit();
         (() => {
             //Check that there is not a running subsequence
             if (this.subsequence == null || 
@@ -83,12 +92,21 @@ class sequence{
             }
         })();
         
-        this.frameCounter++;
         this.lastKeyframe++;
     }
+
+    gotoLastCheckpoint(){
+        this.events = this.unmodifiedEvents.slice();
+        this.eventptr = this.lastCheckpoint;
+        this.lastKeyframe = 0;
+    }
+
+    restart(){
+        this.events = this.unmodifiedEvents.slice();
+        this.eventptr = 0;
+        this.lastKeyframe = 0;
+    }
 }
-
-
 
 
 class sequenceTest extends sequence{
