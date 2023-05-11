@@ -13,15 +13,18 @@ class GameplayObject{
         this.yPos = yPos;
         this.width = width;
         this.height = height;
-        this.onDestroy = null;
+
+        this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
         this.lastCollisionType = null;
+        this.messageStackOutput = null; //Populate with an array if this object is intended to post messages
         
         this.pointChange = 0; //A field to be read by the main loop for changes in the player's points
         this.pointValue = 0;
         
         this.containerArray = containerArray;
-        
-        this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
+
+        //If true, advancement of this sequence should not be blocked by other sequences
+        this.canRunConcurrently = false;
     }
     
     destroy(){
@@ -62,14 +65,22 @@ class ToasterCollision extends GameplayObject{
         super.collide(gameplayObject);
         switch(gameplayObject){
             case gameplayObjects.enemy:
-                console.log("Toaster hit!");
+                if (!this.alive) return;
+
                 this.pointChange += this.pointValue;
-            
+                this.alive = false;
+                if (this.messageStackOutput != null){
+                    this.messageStackOutput.PushMessage(new Message(messageTypeEnum.TOASTER_DEATH, {
+                        "xPos": this.xPos,
+                        "yPos": this.yPos,
+                        "gameplayObject": gameplayObject}));
+                }
+                break;
         }
     }
     
     destroy(){
-        
+
     }
 }
 
@@ -114,9 +125,11 @@ class Enemy extends GameplayObject{
             case gameplayObjects.toast:
                 this.pointChange += this.pointValue;
                 this.destroy();
+                break;
             
             case gameplayObjects.toaster:
                 this.destroy();
+                break;
         }
     }
     
@@ -240,9 +253,11 @@ class Bullet extends GameplayObject{
         switch(gameplayObject){
             case gameplayObjects.enemy:
                 this.destroy();
+                break;
             
             case gameplayObjects.destroy:
                 this.destroy();
+                break;
         }
     }
     

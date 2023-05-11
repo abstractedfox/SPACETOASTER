@@ -85,6 +85,7 @@ class basicSequence extends sequence{
                 
                 this.gameObjects.push(enemy);
             },
+            "checkpoint",
             90,
             () => {
                 let enemy = new ExplodingDynamicEnemy(viewportSevenths["6"] - viewportSevenths["halfunit"], 0, this.enemyWidth, this.enemyHeight, this.baseSpeed + 25, this.gameObjects, 400, 130, secondsAsFrames(1.8), null, null, this.effectObjectsCollection);
@@ -126,15 +127,6 @@ class basicSequence extends sequence{
                 this.gameObjects.push(enemy);
             }
         ]
-    }
-    
-    redParticleExplosion(xPos, yPos){
-        let baseDuration = 10;
-        //constructor(xPos, yPos, width, height, containerArray, density, duration, color)
-        let explode1 = new ParticleExplosion(xPos, yPos, 10, 10, this.effectObjectsCollection, 1, baseDuration, "red");
-        
-        
-        this.effectObjectsCollection.push(explode1);
     }
 }
 
