@@ -13,6 +13,7 @@ class GameplayObject{
         this.yPos = yPos;
         this.width = width;
         this.height = height;
+        this.objectType = gameplayObjects.default;
 
         this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
         this.lastCollisionType = null;
@@ -22,9 +23,10 @@ class GameplayObject{
         this.pointValue = 0;
         
         this.containerArray = containerArray;
+    }
 
-        //If true, advancement of this sequence should not be blocked by other sequences
-        this.canRunConcurrently = false;
+    update(){
+        
     }
     
     destroy(){

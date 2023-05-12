@@ -25,6 +25,9 @@ class sequence{
         this.name = ""; //An optional name for identifying unique sequences
 
         this.hasBeenInitialized = false;
+
+        //If true, advancement of this sequence should not be blocked by other sequences
+        this.canRunConcurrently = false;
     }
 
     runtimeInit(){

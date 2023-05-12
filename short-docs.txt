@@ -1,32 +1,53 @@
 Quick notes about SpaceToaster so I don't forget how anything works later on
 
-gameloop() is called once on the page and starts the game. Numerous CSS attributes are initialized through javascript because it's nicer to set the values absolutely in code and convert them to CSS-friendly strings (with CSS units at the end).
+Game state, messaging, and runtime logic:
+While the main 'gameloop' function is still where step functions are called for each object, runtime state will now be managed through the 'sequenceDispatch' class, which is repsonsible for handling game state and advancing different sequences depending. Here's what happens on a single step now:
+-The message stack from the previous step is sent to the sequence dispatcher
+-Sequence dispatcher is stepped:
+    -Sequence dispatcher iterates messages and sets point changes or game state
+    -Sequence dispatcher checks the game state and advances a sequence. If the game state is 'running', it advanes the main sequence; if the game state is 'toasterDeath', it enters a player death routine, and so on.
+-GameObjects are iterated and their update functions are called. GameObjects may hold references to the message stack and could populate new messages to be read on the next step.
+-Effect objects are iterated and their update functions are called
+-The collision loop is called, and any point value changes are put on the message stack to be read on the next step
+-The background is stepped
 
-var frameTimer = setInterval(...) starts the actual game loop. 16ms is approx 60fps (slightly slower). We're not using any delta time calculations right now so timings are hardcoded; setting a higher or lower value will make the entire game change in speed.
+Currently the message stack itself is a class called 'MessageStack', which wraps an array. Messages are instances of the 'Message' class, and should use the "messageTypeEnum" to signify what kind of message they are.
 
-The jist of the entire codebase is this: On each step, every object in a tracking collection (gameObjects, effectObjects) has its update() function called once. The instance of the background and any sequences (levels) follow this same behavior with a step() function. The collision loop is called for each object in gameObjects on each step; if collisions are found, it calls the 'collide()' function of both objects with the type of object they collided with. Then it returns a change in point value (not a new value, just the amount that the existing point value should change).
+Sequences:
+These are the mechanisms for level scripting in SpaceToaster. To script a level:
+-Create a new class extending 'sequence'
+-Call super() in the constructor
+-Populate the 'events' array. This is the actual script, and lets the programmer write out a level in a sequential order. Array members should be any of the followi
+    -Functions: These are simply called on the frame where they are reached
+    -Integers: These are a frame delay; the sequence will wait this number of frames before advancing past it.
+    -"checkpoint": Sets a checkpoint. The next element after "checkpoint" will be executed in the same frame, so "checkpoint" is not frame exclusive
+    -Sequences: A sequence instance inside of a level script is considered a subsequence. When reached, the calling sequence will block and will not advance until the subsequence completes.
 
-Architecturally, the goal is for code to be fairly modular, and for most objects to manage their own state. Gameplay objects and particles are responsible for removing themselves from container collections and the viewport when destroyed, while sequences are responsible for reporting (via the .isCompleted property) when they are finished. The objective is that designs should be more generic as they effect more of the codebase, and should be more self-contained when they are more specific to a single functionality.
+A sequence indicates completion by setting its 'isComplete' property once it reaches the end of the array.
+A sequence contains an 'exitCondition' property which can be populated with a function returning a boolean in order to set additional conditions before it can indicate completion. For example, blocking until there are no more enemies on screen.
 
-Gameplay objects should extend the GameplayObject class, which provides a few things that will be necessary for any object. Objects should then implement update(), and optionally destroy() and collide() if these are relevant to it. update() is called on every step and takes no arguments. collide() should accept a single argument matching a value in the 'gameplayObjects' constant, and a switch statement to handle relevant collisions. Objects that have a collide() function should have a field titled "objectType" populated with a value from the 'gameplayObjects' enum.
-Gameplay objects' constructors also accept an array which tracks that object; this array will be referenced in that object's destroy() function. When destroy() is called, the object should remove itself from the page and from the referenced array.
+Objects and enemies:
+GameplayObject is the base class for interactive objects. It contains a few properties that may be useful to implementations. Properties and functions of note are:
+-update(): Called on every step
+-collide(): Called by the collision loop if this GameplayObject has collided with another GameplayObject. The collision loop will pass a value from the 'gameplayObjects' enum indicating what has collided with this object.
+-destroy(): A function called when the user wants to destroy this object (remove it from its 'containerArray' and the game screen)
+-'containerArray': A reference to an array that tracks this object. Typically, this will be the 'gameObjects' array in logic.js. This is the array the object would remove itself from in destroy() for example
+-onDestroy: An optional property containing a function which is called in the 'destroy()' function (baked into the base class)
+-messageStackOutput: An optional reference to the message stack, if this object is meant to send or read messages
+-pointChange: A change to be made to the total point value on the next step
+-pointValue: Optional field to record this object's value in points
 
-In the gameplay loop, the 'gameObjects' array is the array we use for this, and contains all of these objects. For this reason, when instantiating a new gameplay object, the object must be added to the array, and the array must be passed to the object.
 
-Toaster movement is still hardcoded into the main game loop; it's represented on the screen with a hardcoded div whose CSS attributes are updated in each call of the step() function, but its collision box is an instance of the ToasterCollision object which works like all the other game objects.
+Graphics:
+starryBackground is a single object that draws the background. It gets added to the effects array and updated every frame, just like everything in the gameObjects array.
+The 'Particle' class extends GameplayObject and draws a dot-shaped particle (actually, it's a period in a monospace font) at the given position, in the color of 'color' (a string containing a CSS color), moves it in the direction of 'angle' in increments of 'speed' pixels for 'duration' frames. It must be placed in a container array like any other GameObject. The function resolving 'angle' is not extremely accurate, so this is generally good for effects, but wouldn't be useful if it needed to move in a highly precise direction.
+The 'ParticleExplosion' class uses Particle to create a fun explosion. It just needs to be placed wherever an explosion is desired and placed in a container array (ie the effects array).
 
-Level scripting:
-A more thought-out level scripting system now exists! To script a level:
--Create a class extending 'sequence' from levels.js, and call super() in the constructor
--The level is scripted in the 'events' array. The array is iterated once per step, and responds to the following types:
-Functions will be called on the step where they are reached.
-Integers represent a frame delay; array iteration will not advance past that integer until that number of frames has passed.
-Instances of other sequences will run, and array iteration will not resume until that sequence completes.
-
-Sequence constructors do take an argument for a speed modifier, but it's up to the programmer to implement this in a given level script. 
-A sequence indicates completion by changing its "isCompleted" field to true, and the base class will do this as soon as the level script has been executed fully. This may not always be desirable though, so there's an optional 'exitCondition' field which can be set with a lambda (or any boolean) to create additional conditions for a sequence to indicate completion. This could be used for something like "until all enemies have been destroyed" to keep sequences from running into each other, or to create sequences that can run indefinitely for a boss enemy. This field can be left null if this functionality isn't needed. It only gets checked after "isCompleted" has been set to true, at which point it will be checked on every frame, so be mindful of this if populating it with a function.
-
-Effects:
-There's now a particle effect system! Using it is functionally identical to using GameplayObjects; an effectObjects array has its contents' update() functions called on each step. The Particle class represents a single particle, which is instantiated at the indicated x and y positions, moves roughly 'speed' pixels per frame in the direction of 'angle', exists for 'duration' frames, and accepts a color (which can be any CSS color). The angle conversion is -not- incredibly accurate, it uses a rough exponential curve to approximate the angle. This is a stand-in until I learn better math. There's also a 'ParticleExplosion' type that uses Particle to make a fun explosion!
-
-Particle effects are -not- baked into the base game objects, and this is done intentionally to keep from making a mess out of the various stateful components involved (and to leave greater flexibility about when, where, and what kind of effects may be desirable). The programmer should decide how to implement effects as it's desirable for a given sequence; the 'basicSequence.js' example does this by extending the enemy classes to create a generic explosion on destruction.
+Other:
+The toaster's movement is hardcoded in logic.js and interacts with the rest of the game via a 'toasterCollision' object in the gameObjects array. 
+There are a few convenient enums (const arrays, but close enough) for various purposes:
+-viewportFifths/viewportSevenths/viewportNinths: Shortcut for various X positions in the viewport, useful for positioning things without having to start figuring out hard pixel locations (and useful if the units or dimensions ever change)
+-gameplayObjects: Types of objects that exist in the game, used anywhere an object type (enemy, toaster, toast) needs to self-identify or be identified (such as the collision loop)
+-gameStateEnum: Enum for various game states
+-messageTypeEnum: Types of messages
+These exist to standardize these as constants throughout the codebase, so it's important to use them properly.

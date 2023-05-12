@@ -6,6 +6,7 @@
 
 //enum for object types
 const gameplayObjects = {
+    default: "default",
     toaster: "toaster",
     toast: "toast",
     enemy: "enemy",
@@ -76,13 +77,11 @@ const viewportNinths = {
 
 
 ///////////////////Logic
-
-
 function secondsAsFrames(numOfSeconds){
     return Math.floor(numOfSeconds * (1000/frameDistance));
 }
 
-//One dimensional collission detection, returns true if the values overlap
+//One dimensional collision detection, returns true if the values overlap
 function collides(object1start, object1end, object2start, object2end){
     return (object1start >= object2start && object1start <= object2end)
     || (object1end >= object2start && object1end <= object2end );
@@ -139,7 +138,6 @@ function gameloop(){
     let effectObjects = [];
     let messageStack = new MessageStack();
     let points = {value: 0};
-    let gameState = gameStateEnum.running;
 
     //Set up keyboard events
     let keyLeft = false;
@@ -255,7 +253,6 @@ function gameloop(){
         
         //Advance frame-level processes
 
-        //level.step();
         sequenceDispatcher.lastStepMessages = lastStepMessages;
         sequenceDispatcher.step();
         
