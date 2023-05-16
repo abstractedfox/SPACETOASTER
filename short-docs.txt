@@ -1,14 +1,15 @@
 Quick notes about SpaceToaster so I don't forget how anything works later on
 
 Game state, messaging, and runtime logic:
-While the main 'gameloop' function is still where step functions are called for each object, runtime state will now be managed through the 'sequenceDispatch' class, which is repsonsible for handling game state and advancing different sequences depending. Here's what happens on a single step now:
+While the main 'gameloop' function is still where step functions are called for each object, runtime state will now be managed through the 'sequenceDispatch' class, which is responsible for handling game state and advancing different sequences depending. Here's what happens on a single step now:
 -The message stack from the previous step is sent to the sequence dispatcher
 -Sequence dispatcher is stepped:
-    -Sequence dispatcher iterates messages and sets point changes or game state
-    -Sequence dispatcher checks the game state and advances a sequence. If the game state is 'running', it advanes the main sequence; if the game state is 'toasterDeath', it enters a player death routine, and so on.
+    -Sequence dispatcher iterates messages. Some messages are processed at the top (such as effects calls or state changes) while others are left in the array to be processed conditionally depending on the game state
+    -Sequence dispatcher checks the game state and advances a sequence. If the game state is 'running', it advances the main sequence; if the game state is 'toasterDeath', it either starts or advances a death sequence, etc.
+    -On the 'step' call of each sequence called by the dispatcher, the sequence either advances to the next element in its 'events' array and calls it, sits on a frame wait, or advances a subsequence.
 -GameObjects are iterated and their update functions are called. GameObjects may hold references to the message stack and could populate new messages to be read on the next step.
 -Effect objects are iterated and their update functions are called
--The collision loop is called, and any point value changes are put on the message stack to be read on the next step
+-The collision loop is called, and any point value changes are put on the message stack to be processed on the next step
 -The background is stepped
 
 Currently the message stack itself is a class called 'MessageStack', which wraps an array. Messages are instances of the 'Message' class, and should use the "messageTypeEnum" to signify what kind of message they are.
@@ -17,7 +18,7 @@ Sequences:
 These are the mechanisms for level scripting in SpaceToaster. To script a level:
 -Create a new class extending 'sequence'
 -Call super() in the constructor
--Populate the 'events' array. This is the actual script, and lets the programmer write out a level in a sequential order. Array members should be any of the followi
+-Populate the 'events' array. This is the actual script, and lets the programmer write out a level in a sequential order. Array members should be any of the following:
     -Functions: These are simply called on the frame where they are reached
     -Integers: These are a frame delay; the sequence will wait this number of frames before advancing past it.
     -"checkpoint": Sets a checkpoint. The next element after "checkpoint" will be executed in the same frame, so "checkpoint" is not frame exclusive
