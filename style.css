@@ -237,3 +237,7 @@
     font-family:  monospace;
     font-size: 12pt;
 }
+
+body{
+    overflow: hidden;
+}

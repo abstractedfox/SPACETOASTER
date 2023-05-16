@@ -6,6 +6,12 @@
 
 ///////////////////Code to standardize messaging between components
 
+/*
+ Format of messageContents for different types:
+ TOASTER_DEATH: {"xPos": xPos, "yPos": yPos, "gameplayObject": gameplayObject}
+ EFFECT_REQUEST: () => {}; //Function that would return an instance of the desired effect
+ */
+
 const messageTypeEnum = {
     TOASTER_DEATH: "TOASTER_DEATH",
     EFFECT_REQUEST: "EFFECT_REQUEST",

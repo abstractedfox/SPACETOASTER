@@ -14,6 +14,7 @@ class GameplayObject{
         this.width = width;
         this.height = height;
         this.objectType = gameplayObjects.default;
+        this.ID = null;
 
         this.onDestroy = () => {}; //Optional function for adding behavior when destroyed
         this.lastCollisionType = null;
