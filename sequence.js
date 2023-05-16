@@ -108,6 +108,7 @@ class sequence{
         this.events = this.unmodifiedEvents.slice();
         this.eventptr = 0;
         this.lastKeyframe = 0;
+        this.lastCheckpoint = 0;
     }
 }
 

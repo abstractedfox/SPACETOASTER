@@ -232,10 +232,13 @@ function gameloop(){
     
     let level = new basicSequence(gameObjects, 1, effectObjects);
     let bg = new starryBackground();
-    let sequenceDispatcher = new sequenceDispatch(gameObjects);
+    let sequenceDispatcher = new sequenceDispatch(gameObjects, effectObjects, messageStack);
     sequenceDispatcher.mainSequence = level;
     sequenceDispatcher.state = gameStateEnum.running;
     sequenceDispatcher.refPoints = points;
+    sequenceDispatcher.deathSequenceInit = () => {
+        return new toasterDeathSequence(gameObjects, 1, effectObjects, messageStack);
+    };
     
     function step(){
         let lastStepMessages = messageStack.GetMessagesAndClear();
