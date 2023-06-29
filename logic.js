@@ -23,6 +23,13 @@ const gameStateEnum = {
     toasterDeath: "toasterDeath"
 }
 
+const dimensionConsts = {
+    toasterX: 150,
+    toasterY: 80,
+    viewportWidth: 1100,
+    viewportHeight: 900
+};
+
 const toastGraphic = `<div id="toastInnerContainer">
 <div id="toastBody"></div>
 <div id="toastTop"></div>
@@ -34,45 +41,45 @@ const toastGraphic = `<div id="toastInnerContainer">
 </div>`;
 
 const frameDistance = 16;
-const viewportWidth = 1100;
-const viewportHeight = 900;
+const viewportWidth = dimensionConsts.viewportWidth;
+const viewportHeight = dimensionConsts.viewportHeight;
 const bulletTopBound = -5;
-const enemyBottomBound = viewportHeight + 5;
+const enemyBottomBound = dimensionConsts.viewportHeight + 5;
 const AudioContext = window.AudioContext;
 
 
 //Handy shortcuts for object positioning without having to hardcode pixel values all over the place
 const viewportFifths = {
-    "1": (viewportWidth / 5),
-    "2": (viewportWidth / 5) * 2,
-    "3": (viewportWidth / 5) * 3,
-    "4": (viewportWidth / 5) * 4,
-    "5": viewportWidth,
-    "halfunit": ((viewportWidth / 5) / 2)
+    "1": (dimensionConsts.viewportWidth / 5),
+    "2": (dimensionConsts.viewportWidth / 5) * 2,
+    "3": (dimensionConsts.viewportWidth / 5) * 3,
+    "4": (dimensionConsts.viewportWidth / 5) * 4,
+    "5": dimensionConsts.viewportWidth,
+    "halfunit": ((dimensionConsts.viewportWidth / 5) / 2)
 }
 
 const viewportSevenths = {
-    "1": (viewportWidth / 7),
-    "2": (viewportWidth / 7) * 2,
-    "3": (viewportWidth / 7) * 3,
-    "4": (viewportWidth / 7) * 4,
-    "5": (viewportWidth / 7) * 5,
-    "6": (viewportWidth / 7) * 6,
-    "7": viewportWidth,
-        "halfunit": ((viewportWidth / 7) / 2)
+    "1": (dimensionConsts.viewportWidth / 7),
+    "2": (dimensionConsts.viewportWidth / 7) * 2,
+    "3": (dimensionConsts.viewportWidth / 7) * 3,
+    "4": (dimensionConsts.viewportWidth / 7) * 4,
+    "5": (dimensionConsts.viewportWidth / 7) * 5,
+    "6": (dimensionConsts.viewportWidth / 7) * 6,
+    "7": dimensionConsts.viewportWidth,
+        "halfunit": ((dimensionConsts.viewportWidth / 7) / 2)
 }
 
 const viewportNinths = {
-    "1": (viewportWidth / 9),
-    "2": (viewportWidth / 9) * 2,
-    "3": (viewportWidth / 9) * 3,
-    "4": (viewportWidth / 9) * 4,
-    "5": (viewportWidth / 9) * 5,
-    "6": (viewportWidth / 9) * 6,
-    "7": (viewportWidth / 9) * 7,
-    "8": (viewportWidth / 9) * 8,
-    "9": viewportWidth,
-    "halfunit": ((viewportWidth / 9) / 2)
+    "1": (dimensionConsts.viewportWidth / 9),
+    "2": (dimensionConsts.viewportWidth / 9) * 2,
+    "3": (dimensionConsts.viewportWidth / 9) * 3,
+    "4": (dimensionConsts.viewportWidth / 9) * 4,
+    "5": (dimensionConsts.viewportWidth / 9) * 5,
+    "6": (dimensionConsts.viewportWidth / 9) * 6,
+    "7": (dimensionConsts.viewportWidth / 9) * 7,
+    "8": (dimensionConsts.viewportWidth / 9) * 8,
+    "9": dimensionConsts.viewportWidth,
+    "halfunit": ((dimensionConsts.viewportWidth / 9) / 2)
 }
 
 
@@ -132,7 +139,7 @@ function gameloop(){
     let toasterX = 150;
     let toasterY = 80;
     let toasterLeftPosition = 0;
-    let toasterTopBoundPosition = ((viewportHeight / 7) * 6);
+    let toasterTopBoundPosition = ((dimensionConsts.viewportHeight / 7) * 6);
 
     let gameObjects = [];
     let effectObjects = [];
@@ -181,14 +188,14 @@ function gameloop(){
     }
 
     //Initialize sizes and positions
-    toaster.style.width = toasterX + "px";
-    toaster.style.height = toasterY + "px";
-    document.documentElement.style.setProperty("--viewport-width", (viewportWidth + "px"));
-    document.documentElement.style.setProperty("--viewport-height", (viewportHeight + "px"));
+    toaster.style.width = dimensionConsts.toasterX + "px";
+    toaster.style.height = dimensionConsts.toasterY + "px";
+    document.documentElement.style.setProperty("--viewport-width", (dimensionConsts.viewportWidth + "px"));
+    document.documentElement.style.setProperty("--viewport-height", (dimensionConsts.viewportHeight + "px"));
     document.documentElement.style.setProperty("--toaster-position", toasterTopBoundPosition + "px");
     
-    toasterLeftPosition = ((viewportWidth / 2) - (toasterX / 2));
-         
+    toasterLeftPosition = ((dimensionConsts.viewportWidth / 2) - (dimensionConsts.toasterX / 2));
+
     //Initialize sound
     let audioContext = new AudioContext();
     let bgmElement = document.querySelector("audio");
@@ -244,11 +251,13 @@ function gameloop(){
         let lastStepMessages = messageStack.GetMessagesAndClear();
 
         //Toaster logic
-        if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
-            toasterLeftPosition -= toasterSpeed;
-        }
-        else if (keyRight == true && toasterLeftPosition + toasterX < (viewportWidth + viewportBoundaryTolerance)){
-            toasterLeftPosition += toasterSpeed;
+        if (toasterCollisionObject.alive){
+            if (keyLeft == true && toasterLeftPosition > (0 - viewportBoundaryTolerance)){
+                toasterLeftPosition -= toasterSpeed;
+            }
+            else if (keyRight == true && toasterLeftPosition + toasterX < (viewportWidth + viewportBoundaryTolerance)){
+                toasterLeftPosition += toasterSpeed;
+            }
         }
         if (toasterLeftPosition < (0-viewportBoundaryTolerance)) toasterLeftPosition = 0 - viewportBoundaryTolerance;
         if (toasterLeftPosition > (viewportWidth - toasterX + viewportBoundaryTolerance)) toasterLeftPosition = viewportWidth - toasterX + viewportBoundaryTolerance;
@@ -274,6 +283,11 @@ function gameloop(){
         document.getElementById("pointsOutput").innerHTML = points["value"];
         
         bg.step();
+
+        let toasterReset = messageStack.getFirstMessageOfType(messageTypeEnum.RESET_TOASTER_POSITION);
+        if (toasterReset != null){
+            toasterLeftPosition = ((dimensionConsts.viewportWidth / 2) - (dimensionConsts.toasterX / 2));
+        }
         
         //This block gets removed once sequenceDispatcher is finished
         if (level.isCompleted){

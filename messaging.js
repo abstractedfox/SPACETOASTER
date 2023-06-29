@@ -19,7 +19,8 @@ const messageTypeEnum = {
     UNPAUSE: "UNPAUSE",
     START_GAME: "START_GAME",
     END_GAME: "END_GAME",
-    POINT_CHANGE: "POINT_CHANGE"
+    POINT_CHANGE: "POINT_CHANGE",
+    RESET_TOASTER_POSITION: "RESET_TOASTER_POSITION"
 }
 
 class Message{
@@ -52,6 +53,22 @@ class MessageStack{
     GetMessagesAndClear(){
         let output = this.messages.slice();
         this.messages = [];
+        return output;
+    }
+
+    //Returns the first message of a type in 'messageTypeEnum'. If there is no match, returns null.
+    getFirstMessageOfType(messageType){
+        if (Object.values(messageTypeEnum).indexOf(messageType) < 0){
+            return null;
+        }
+        let output = null;
+        this.messages.forEach(message => {
+            if (message.messageType == messageType){
+                output = message;
+                return;
+            }
+        });
+
         return output;
     }
 }
