@@ -19,7 +19,8 @@ const messageTypeEnum = {
     UNPAUSE: "UNPAUSE",
     START_GAME: "START_GAME",
     END_GAME: "END_GAME",
-    POINT_CHANGE: "POINT_CHANGE"
+    POINT_CHANGE: "POINT_CHANGE",
+    CHECKPOINT_START: "CHECKPOINT_START"
 }
 
 class Message{

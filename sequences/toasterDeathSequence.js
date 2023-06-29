@@ -46,7 +46,10 @@ class toasterDeathSequence extends sequence{
                     return new ParticleExplosion(this.toasterInstance.xPos + 24, this.toasterInstance.yPos + 47, 10, 10, effectObjectsCollection, 1, 4, "orange");
                 }));
             },
-            70
+            70,
+            () => {
+                this.toasterInstance.resetPosition();
+            }
         ];
     }
 }

@@ -81,6 +81,10 @@ class ToasterCollision extends GameplayObject{
                 break;
         }
     }
+
+    resetPosition(){
+        this.xPos = ((dimensionConsts.viewportWidth / 2) - (dimensionConsts.toasterX / 2));
+    }
     
     destroy(){
 
