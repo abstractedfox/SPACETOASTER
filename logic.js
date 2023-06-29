@@ -283,6 +283,11 @@ function gameloop(){
         document.getElementById("pointsOutput").innerHTML = points["value"];
         
         bg.step();
+
+        let toasterReset = messageStack.getFirstMessageOfType(messageTypeEnum.RESET_TOASTER_POSITION);
+        if (toasterReset != null){
+            toasterLeftPosition = ((dimensionConsts.viewportWidth / 2) - (dimensionConsts.toasterX / 2));
+        }
         
         //This block gets removed once sequenceDispatcher is finished
         if (level.isCompleted){

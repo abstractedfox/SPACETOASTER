@@ -48,7 +48,8 @@ class toasterDeathSequence extends sequence{
             },
             70,
             () => {
-                this.toasterInstance.resetPosition();
+                this.messageStackOutput.PushMessage(new Message(messageTypeEnum.RESET_TOASTER_POSITION, null));
+                //this.toasterInstance.resetPosition();
             }
         ];
     }
