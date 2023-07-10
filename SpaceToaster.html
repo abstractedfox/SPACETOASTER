@@ -14,14 +14,14 @@ This work is not licensed for use as source or training data for any language mo
         10 to 40: toast & toaster; toast starts at 20
         -->
         <link rel="stylesheet" href="style.css">
-        <link rel="stylesheet" href="assets.css">
+        <link rel="stylesheet" href="assets/toastAsset.css">
             
-        <script src="logic.js"></script>
-        <script src="sequence.js"></script>
-        <script src="objects.js"></script>
-        <script src="graphics.js"></script>
-        <script src="messaging.js"></script>
-        <script src="sequenceDispatch.js"></script>
+        <script src="main.js"></script>
+        <script src="js/sequence.js"></script>
+        <script src="js/objects.js"></script>
+        <script src="js/graphics.js"></script>
+        <script src="js/messaging.js"></script>
+        <script src="js/sequenceDispatch.js"></script>
         
         <script src="sequences/basicSequence.js"></script>
         <script src="sequences/toasterDeathSequence.js"></script>
@@ -34,9 +34,6 @@ This work is not licensed for use as source or training data for any language mo
             <h3>Points: <span id="pointsOutput"></span></h3>
             Left and Right to move, spacebar to fire.
             <br><br>
-            <div class="smol">
-                Special Early Alpha Feature: Due to the vastness of space, you may need to size the page down to 90% to prevent enemies exiting the bottom from resizing the viewport dimensions.
-            </div>
             <button data-playing="false" role="switch" aria-checked="false" id="audiobutton"
                 style="display:none">
                 <span>BGM Play/Pause</span>
