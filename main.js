@@ -91,36 +91,70 @@ function secondsAsFrames(numOfSeconds){
 //One dimensional collision detection, returns true if the values overlap
 function collides(object1start, object1end, object2start, object2end){
     return (object1start >= object2start && object1start <= object2end)
-    || (object1end >= object2start && object1end <= object2end );
+    || (object1end >= object2start && object1start <= object2end );
+        
+}
+                 
+//Returns null if there is no collision and returns a point change (int) if there is
+function callCollideFunctionsAndRegisterPointChange(object1, object2){
+    let scoreChange = 0;
+    
+    
+    if (collides(object1.yPos, object1.yPos + object1.height, object2.yPos, object2.yPos + object2.height)
+        && collides(object1.xPos, object1.xPos + object1.width, object2.xPos, object2.xPos + object2.width)){
+        
+        object1.collide(object2.objectType);
+        object2.collide(object1.objectType);
+        
+        if (object1.hasOwnProperty("pointChange") && object1.pointChange != 0){
+            scoreChange += object1.pointChange;
+            object1.pointChange = 0;
+        }
+        
+        if (object2.hasOwnProperty("pointChange") && object2.pointChange != 0){
+            scoreChange += object2.pointChange;
+            object2.pointChange = 0;
+        }
+    }
+    else{
+        //Return null if there is not a collision
+        return null;
+    }
+        
+    return scoreChange;
 }
 
-//note: can probably optimize this better; also, it will technically register each collision twice, which is
-//fine for now, but will be a problem if we want collisions to do something other than destroy an object
+//Returns a value representing a point change to be applied by the caller
 function collisionloop(objectCollection){
     let scoreChange = 0;
-    objectCollection.forEach(outerLoopObject => {
-        objectCollection.forEach(innerLoopObject => {
-            
-            if (outerLoopObject.ID != innerLoopObject.ID){
-                if (collides(outerLoopObject.yPos, outerLoopObject.yPos + outerLoopObject.height, innerLoopObject.yPos, innerLoopObject.yPos + innerLoopObject.height)
-                    && collides(outerLoopObject.xPos, outerLoopObject.xPos + outerLoopObject.width, innerLoopObject.xPos, innerLoopObject.xPos + innerLoopObject.width)){
-                    
-                    outerLoopObject.collide(innerLoopObject.objectType);
-                    innerLoopObject.collide(outerLoopObject.objectType);
-                    
-                    if (outerLoopObject.hasOwnProperty("pointChange") && outerLoopObject.pointChange != 0){
-                        scoreChange += outerLoopObject.pointChange;
-                        outerLoopObject.pointChange = 0;
-                    }
-                    
-                    if (innerLoopObject.hasOwnProperty("pointChange") && innerLoopObject.pointChange != 0){
-                        scoreChange += innerLoopObject.pointChange;
-                        innerLoopObject.pointChange = 0;
-                    }
-                }
+
+    let mutableCopy = [];
+    
+    if (objectCollection.length < 2){
+        return 0;
+    }
+    
+    for (let i = 1; i < objectCollection.length; i++){
+        mutableCopy.push(objectCollection[i]);
+        
+        let collisionCheck = callCollideFunctionsAndRegisterPointChange(objectCollection[0], objectCollection[i]);
+        
+        if (collisionCheck != null){
+            scoreChange += collisionCheck;
+        }
+    }
+        
+        
+    while (mutableCopy.length > 0){
+        for(let i = 1; i < mutableCopy.length; i++){
+            let collisionCheck = callCollideFunctionsAndRegisterPointChange(mutableCopy[0], mutableCopy[i]);
+            if (collisionCheck != null){
+                scoreChange += collisionCheck;
             }
-        });
-    });
+        }
+        
+        mutableCopy.splice(0, 1);
+    }
     
     return scoreChange;
 }
