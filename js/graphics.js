@@ -7,7 +7,7 @@
 ///////////////////Graphics
 class starryBackground{
     constructor(){
-        this.speedMultiplier = 1;
+        this.speedMultiplier = 0.2;
         this.starArray = [];
         this.vSlowStar = 1;
         this.slowStar = 2;
@@ -39,30 +39,38 @@ class starryBackground{
         });
         
         let randomVal = Math.random();
+        let startdist = -500;
+        let maxStars = 650 * (viewportWidth / 1100); //keep it in proportion to before we unlocked the viewport width
+        if (this.starArray.length > 600){
+            return;
+        }
+        
+        let jitter = Math.random() * 2;
+        
         if (randomVal < 0.05){
             //Very slow star
-            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vSlowStar, this.starArray, this);
+            let star = new Star((Math.random() * viewportWidth), startdist, 10, 10, this.vSlowStar * jitter, this.starArray, this);
             this.starArray.push(star);
             return;
         }
         
         if (randomVal < 0.15){
             //Slow star
-            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.slowStar, this.starArray, this);
+            let star = new Star((Math.random() * viewportWidth), startdist, 10, 10, this.slowStar * jitter, this.starArray, this);
             this.starArray.push(star);
             return;
         }
         
         if (randomVal < 0.5){
             //Fast star
-            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.fastStar, this.starArray, this);
+            let star = new Star((Math.random() * viewportWidth), startdist, 10, 10, this.fastStar * jitter, this.starArray, this);
             this.starArray.push(star);
             return;
         }
         
         if (randomVal > 0.88){
             //Very fast star
-            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vFastStar, this.starArray, this);
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vFastStar * jitter, this.starArray, this);
             this.starArray.push(star);
             return;
         }
@@ -77,9 +85,26 @@ class Star extends GameplayObject{
         this.bgInstance = bgInstance;
         
         this.ID = Math.random().toString();
-        
-        let star = '.';
+       
+        let star = ".";
         let cssclass = "star";
+        let rand = Math.random();
+        if (rand > 0.94){
+            star = '<img src="csclub-w.png">';
+            if (rand > 0.96){
+                star = '<img src="csclub-b.png">';
+            }
+            rand = Math.random();
+            if (rand > 0.91){
+                cssclass += " hugecsclub";
+            }
+            else if (rand > 0.7){
+                cssclass += " bigcsclub";
+            }
+            else{
+                cssclass += " smallcsclub";
+            }
+        }
         
         this.htmlContents = `<div class="` + cssclass + `" id="` + this.ID + `">` + star + `</div>`;
         
@@ -93,7 +118,6 @@ class Star extends GameplayObject{
         let starOnPage = document.getElementById(this.ID);
         this.yPos += (this.speed * this.bgInstance.speedMultiplier);
         starOnPage.style.top = this.yPos + "px";
-        
         
         if (this.yPos > enemyBottomBound){
             this.destroy();

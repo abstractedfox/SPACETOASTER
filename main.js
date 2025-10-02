@@ -30,6 +30,9 @@ const dimensionConsts = {
     viewportHeight: 900
 };
 
+dimensionConsts.viewportWidth = window.innerWidth; //csclub edition
+dimensionConsts.viewportHeight = window.innerHeight; //csclub edition
+
 const toastGraphic = `<div id="toastInnerContainer">
 <div id="toastBody"></div>
 <div id="toastTop"></div>
@@ -40,7 +43,7 @@ const toastGraphic = `<div id="toastInnerContainer">
 <div id="toastTop"></div>
 </div>`;
 
-const frameDistance = 16;
+let frameDistance = 16;
 const viewportWidth = dimensionConsts.viewportWidth;
 const viewportHeight = dimensionConsts.viewportHeight;
 const bulletTopBound = -5;
@@ -165,8 +168,8 @@ function gameloop(){
     let toaster = document.getElementById("toaster");
     console.log("Script active");
 
-    let frameTimer = setInterval(step, frameDistance);
-    let toasterSpeed = 18;
+    //let frameTimer = setInterval(step, frameDistance);
+    let toasterSpeed = 18 * (viewportWidth / 1100); //keep it in proportion
     let toastSpeed = 15;
 
     let viewportBoundaryTolerance = 25; //Amount the toaster is allowed to move out of the viewport
@@ -281,7 +284,9 @@ function gameloop(){
         return new toasterDeathSequence(gameObjects, 1, effectObjects, messageStack);
     };
     
-    function step(){
+    let lastTime = 0;
+    function step(t){
+        frameDistance = t - lastTime;
         let lastStepMessages = messageStack.GetMessagesAndClear();
 
         //Toaster logic
@@ -330,6 +335,9 @@ function gameloop(){
             level = sequenceDispatcher.mainSequence;
         }
         
+        lastTime = t;
+        requestAnimationFrame(step);
     }
+    requestAnimationFrame(step);
 
 }

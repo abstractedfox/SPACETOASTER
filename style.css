@@ -193,6 +193,26 @@
     text-align: center;
 }
 
+.smallcsclub{
+    width: 80px;
+    height: 80px;
+}
+
+.bigcsclub{
+    width: 160px;
+    height: 160px;
+}
+
+.hugecsclub{
+    width: 500px;
+    height: 500px;
+}
+
+.star img{
+    width: 100%;
+    height: 100%;
+}
+
 .twinklingstar{
     font-family: monospace;
     position: absolute;
@@ -240,4 +260,5 @@
 
 body{
     overflow: hidden;
+    background: black;
 }
