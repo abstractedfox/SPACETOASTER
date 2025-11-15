@@ -13,21 +13,22 @@ class starryBackground{
         this.slowStar = 2;
         this.fastStar = 5;
         this.vFastStar = 9;
+        this.maxStars = 300 * (viewportWidth / 1100); //keep it in proportion to before we unlocked the viewport width
         
         //Fast stars
-        for (let i = 0; i < 20; i++){
+        for (let i = 0; i < this.maxStars * (1/30); i++){
             let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.fastStar, this.starArray, this);
             this.starArray.push(star);
         }
         
         //Slow stars
-        for (let i = 0; i < 30; i++){
+        for (let i = 0; i < this.maxStars * (1/60); i++){
             let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.slowStar, this.starArray, this);
             this.starArray.push(star);
         }
         
         //Very slow stars
-        for (let i = 0; i < 8; i++){
+        for (let i = 0; i < this.maxStars * (1/90); i++){
             let star = new Star((Math.random() * viewportWidth), (Math.random() * viewportHeight), 10, 10, this.vSlowStar, this.starArray, this);
             this.starArray.push(star);
         }
@@ -40,8 +41,7 @@ class starryBackground{
         
         let randomVal = Math.random();
         let startdist = -500;
-        let maxStars = 650 * (viewportWidth / 1100); //keep it in proportion to before we unlocked the viewport width
-        if (this.starArray.length > 600){
+        if (this.starArray.length > this.maxStars){
             return;
         }
         
@@ -89,9 +89,9 @@ class Star extends GameplayObject{
         let star = ".";
         let cssclass = "star";
         let rand = Math.random();
-        if (rand > 0.94){
+        if (rand > 0.97){
             star = '<img src="csclub-w.png">';
-            if (rand > 0.96){
+            if (rand > 0.985){
                 star = '<img src="csclub-b.png">';
             }
             rand = Math.random();
