@@ -102,7 +102,7 @@ class Enemy extends GameplayObject{
         this.containerArray = containerArray;
         this.ID = Math.random().toString();
         this.cssClass = "enemy";
-        this.htmlContents = `<div class="` + this.cssClass + `" id="` + this.ID + `"></div>`;
+        this.htmlContents = `<div class="` + this.cssClass + `" id="` + this.ID + `"><img src='thanksgaming-turkey-smol.png'></div>`;
         
         document.getElementById("enemyBounds").innerHTML += this.htmlContents;
         

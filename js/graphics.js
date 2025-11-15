@@ -159,7 +159,7 @@ class ParticleExplosion extends GameplayObject{
         let randomVal = Math.random();
         
         if (this.density > Math.random()){
-            let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color);
+            let particle = new Particle(this.xPos, this.yPos, Math.random() * 360, 9 + (Math.random() * 15), this.baseSpeed + (Math.random() * 5), this.containerArray, this.color, true);
             this.containerArray.push(particle);
             
             if (randomVal > 0.4){
@@ -191,7 +191,7 @@ class ParticleExplosion extends GameplayObject{
 }
 
 class Particle extends GameplayObject{
-    constructor(xPos, yPos, angle, duration, speed, containerArray, color){
+    constructor(xPos, yPos, angle, duration, speed, containerArray, color, gaming){
         super(xPos, yPos, 10, 10, containerArray);
         this.angleCoordinates = angleToCartesian(angle);
         this.frameCounter = 0;
@@ -202,6 +202,20 @@ class Particle extends GameplayObject{
         
         let particle = '.';
         let cssclass = "star";
+
+        if (gaming){
+            let rand = Math.random();
+            if (rand > 0.93 && rand < 0.96){
+                particle = "11/25 to 11/30";
+            }
+            if (rand > 0.96 && rand < 0.97){
+                particle = "happy THANKSGAMING!!";
+            }
+            if (rand > 0.97){
+                particle = "gAmInG!!!1";
+            }
+
+        }
         
         this.htmlContents = `<div class="` + cssclass + `" id="` + this.ID + `">` + particle + `</div>`;
         

@@ -30,10 +30,11 @@ const dimensionConsts = {
     viewportHeight: 900
 };
 
-dimensionConsts.viewportWidth = window.innerWidth; //csclub edition
-dimensionConsts.viewportHeight = window.innerHeight; //csclub edition
+//dimensionConsts.viewportWidth = window.innerWidth; //csclub edition
+//dimensionConsts.viewportHeight = window.innerHeight; //csclub edition
 
 const toastGraphic = `<div id="toastInnerContainer">
+<!-- <img src="thanksgaming-turkey-smol.png" class="turkey"> -->
 <div id="toastBody"></div>
 <div id="toastTop"></div>
 <div id="toastToastiness"></div>
