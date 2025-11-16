@@ -1,7 +1,93 @@
+@import url(https://fonts.bunny.net/css?family=montserrat:200,600,600i,900i);
+
 :root{
     --viewport-width: 1px;
     --viewport-height: 900px;
     --toaster-position: 0px;
+}
+
+
+@keyframes thanksgaming_icon_anim{
+    0%{
+        scale: 1;
+    }
+    50%{
+        scale: 1.1;
+    }
+    100%{
+        scale: 1;
+    }
+}
+
+#thanksgaming_icon_main{
+    animation-name: thanksgaming_icon_anim;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+#promoexit{
+    visibility: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
+#promo{
+    visibility: hidden;
+    position: absolute; 
+    z-index: 1000;
+    width: 700px;
+    height: 620px;
+    background-color: rgb(1 4 8 / 90%);
+    
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    
+    color: #ffffff;
+    font-family: montserrat;
+    font-weight: 200;
+    /*src: url(https://fonts.bunny.net/css?family=montserrat:600i,900i);*/
+
+    padding: 16px;
+}
+
+#promo a{
+    color: #eeeeff;
+}
+
+#promo h1{
+    text-align: center;
+    font-weight: 900;
+    font-style: italic;
+    margin: 0px;
+    font-size: 250%;
+}
+
+#promo h2{
+    font-weight: 600;
+    font-size: 180%;
+    font-style: italic;
+}
+
+#promo h6{
+    text-align: center;
+    font-size: 100%;
+    margin: 0px;
+}
+
+#promo h6 b{
+    font-size: 130%;
+    font-weight: 900;
+    font-style: italic;
+}
+
+#promo img{
+    width: 100%;
+    height: auto;
+
 }
 
 #toastInnerContainer img{
@@ -221,26 +307,26 @@
 }
 
 .smallcsclub{
-    opacity: 60%;
+    opacity: 50%;
     width: 80px;
     height: 80px;
 }
 
 .bigcsclub{
-    opacity: 60%;
-    width: 160px;
-    height: 160px;
+    opacity: 50%;
+    width: 150px;
+    height: 150px;
 }
 
 .hugecsclub{
-    opacity: 60%;
+    opacity: 50%;
     width: 500px;
     height: 500px;
 }
 
 .star img{
     width: 100%;
-    height: 100%;
+    height: auto;
 }
 
 .twinklingstar{
@@ -269,7 +355,11 @@
     font-family: monospace;
     color: white;
     font-size: 2vh;
-    
+}
+
+#playerHud img{
+    width: 100%;
+    height: auto; 
 }
 
 #playerHud h1{

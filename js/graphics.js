@@ -91,8 +91,11 @@ class Star extends GameplayObject{
         let rand = Math.random();
         if (rand > 0.97){
             star = '<img src="csclub-w.png">';
-            if (rand > 0.985){
+            if (rand > 0.9833 && rand < 0.9866){
                 star = '<img src="csclub-b.png">';
+            }
+            if (rand >= 0.9866){
+                star = '<img src="thanksgaming-icon-smol.png">';
             }
             rand = Math.random();
             if (rand > 0.91){

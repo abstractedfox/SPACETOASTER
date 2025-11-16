@@ -29,8 +29,31 @@ This work is not licensed for use as source or training data for any language mo
         <audio src="assets/simplebgm.mp3" crossorigin="anonymous"></audio>
     </head>
     <body>
+        <div id="promo">
+            <img src="thanksgaming-icon.png">
+            <h1>HAPPY THANKSGAMING</h1>
+            <h6>from the <b id="csclubtext">Computer Science Club</b></h6>
+            <h2>GAMEDEV CRASH COURSE 11/20</h2>
+            <div>1pm TEC-143! Covering a variety of gamedev tools. Will cover options for beginners (yes, you!) and experienced coders!</div>
+            <h2>GAME JAM KICKOFF 11/25</h2>
+            <div>Onsite! Join us for food, find collaborators, and start your game! 5pm TEC-145 @ RCBC Mt. Laurel. Please RSVP!</div>
+            <div><b>RSVP:</b> <a href="https://forms.gle/jrJ4v8mnmc6T85mo9">forms.gle/jrJ4v8mnmc6T85mo9</a></div>
+        </div>
+        <script>
+            function hidePromo(){
+                document.getElementById("promo").style.visibility = "hidden";
+                document.getElementById("promoexit").style.visibility = "hidden";
+            }
+            
+            function showPromo(){
+                document.getElementById("promo").style.visibility = "visible";
+                document.getElementById("promoexit").style.visibility = "visible";
+            }
+        </script>
+        <div id="promoexit" onclick="hidePromo()"></div>
         <div id="playerHud">
             <h1>SPACETOASTER</h1>
+            <a href="#" onclick="showPromo()"><img src="thanksgaming-icon-smol.png" id="thanksgaming_icon_main"></a>
             <h3>Points: <span id="pointsOutput"></span></h3>
             Left and Right to move, spacebar to fire.
             <br><br>
