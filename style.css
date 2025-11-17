@@ -6,6 +6,37 @@
     --toaster-position: 0px;
 }
 
+#promotop a{
+    color: #ffffff;
+    text-decoration: none;
+    font-style: italic;
+}
+
+#promotop{
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    color: #ffffff;
+    z-index: 998;
+    text-align: center;
+    font-family: montserrat;
+    font-weight: 900;
+    font-style: italic;
+    display: flex;
+    flex-direction: horizontal;
+    align-items: center;
+}
+
+#promotop #flavortext{
+    font-size: 300%;
+    width: 90%;
+}
+
+#promotop img{
+    z-index: 9999;
+    height: 100%;
+    width: auto;
+}
 
 @keyframes thanksgaming_icon_anim{
     0%{

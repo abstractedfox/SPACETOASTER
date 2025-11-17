@@ -70,7 +70,7 @@ class starryBackground{
         
         if (randomVal > 0.88){
             //Very fast star
-            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vFastStar * jitter, this.starArray, this);
+            let star = new Star((Math.random() * viewportWidth), 0, 10, 10, this.vFastStar * jitter, this.starArray, this, true);
             this.starArray.push(star);
             return;
         }
@@ -89,6 +89,13 @@ class Star extends GameplayObject{
         let star = ".";
         let cssclass = "star";
         let rand = Math.random();
+        if (rand < 0.01){
+            star = "11/25-11/30";
+        }
+        if (rand >= 0.05 && rand < 0.057){
+            star = "no u dont have class its thanksgiving break";
+        }
+
         if (rand > 0.97){
             star = '<img src="csclub-w.png">';
             if (rand > 0.9833 && rand < 0.9866){
